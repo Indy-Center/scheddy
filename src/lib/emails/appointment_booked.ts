@@ -3,7 +3,7 @@ import { type EmailContent, templateOut } from '$lib/email';
 import plaintextTemplate from './AppointmentBooked.txt?raw';
 import AppointmentBooked from './AppointmentBooked.svelte';
 import { render } from 'svelte/server';
-import { BASE_URL } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 
 export interface AppointmentBookedProps {
 	startTime: DateTime;
@@ -27,7 +27,7 @@ export function appointment_booked(props: AppointmentBookedProps): EmailContent 
 			timezone: props.timezone,
 			link_params: props.link_params,
 			reschedule: props.reschedule ? 'rescheduled' : '',
-			reschedule_link: `${BASE_URL}schedule/${props.link_params}`
+			reschedule_link: `${env.BASE_URL}schedule/${props.link_params}`
 		}),
 		html: render(AppointmentBooked, {
 			props: props

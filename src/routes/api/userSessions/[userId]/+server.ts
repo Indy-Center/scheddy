@@ -3,7 +3,7 @@ import { error } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
 import { mentors, sessions, sessionTypes } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
-import { API_MASTER_KEY } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import { DateTime } from 'luxon';
 
 export const GET: RequestHandler = async ({ request, params }) => {
@@ -41,7 +41,7 @@ export const GET: RequestHandler = async ({ request, params }) => {
 	}
 
 	const real_token = token_parts[1];
-	if (real_token != API_MASTER_KEY) {
+	if (real_token != env.API_MASTER_KEY) {
 		error(
 			403,
 			JSON.stringify({

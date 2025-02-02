@@ -1,10 +1,5 @@
 <script lang="ts">
-	import {
-		PUBLIC_FACILITY_NAME,
-		PUBLIC_VATSIM_OAUTH_BASE,
-		PUBLIC_VATSIM_OAUTH_CLIENT_ID,
-		PUBLIC_VATSIM_OAUTH_REDIRECT_URL
-	} from '$env/static/public';
+	import { env } from '$env/dynamic/public';
 	import Button from '$lib/ui/Button.svelte';
 	import Card from '$lib/ui/Card.svelte';
 	import { version } from '$app/environment';
@@ -13,10 +8,10 @@
 
 <div class="min-w-screen min-h-screen flex flex-col align-middle justify-center items-center">
 	<Card>
-		<h1 class="font-bold text-2xl text-center">{PUBLIC_FACILITY_NAME} - Scheddy</h1>
+		<h1 class="font-bold text-2xl text-center">{env.PUBLIC_FACILITY_NAME} - Scheddy</h1>
 
 		<Button
-			href="{PUBLIC_VATSIM_OAUTH_BASE}/oauth/authorize?response_type=code&client_id={PUBLIC_VATSIM_OAUTH_CLIENT_ID}&redirect_uri={PUBLIC_VATSIM_OAUTH_REDIRECT_URL}"
+			href="{env.PUBLIC_VATSIM_OAUTH_BASE}/oauth/authorize?response_type=code&client_id={env.PUBLIC_VATSIM_OAUTH_CLIENT_ID}&redirect_uri={env.PUBLIC_VATSIM_OAUTH_REDIRECT_URL}"
 		>
 			Login with VATSIM
 		</Button>

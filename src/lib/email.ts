@@ -1,21 +1,14 @@
 import nodemailer from 'nodemailer';
-import {
-	SMTP_HOST,
-	SMTP_PORT,
-	SMTP_SECURE,
-	SMTP_AUTH_USER,
-	SMTP_AUTH_PASS,
-	SMTP_EMAIL_FROM
-} from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import type SMTPTransport from 'nodemailer/lib/smtp-pool';
 
 export const emailTransporter = nodemailer.createTransport({
-	host: SMTP_HOST,
-	port: SMTP_PORT,
-	secure: SMTP_SECURE === 'true',
+	host: env.SMTP_HOST,
+	port: env.SMTP_PORT,
+	secure: env.SMTP_SECURE === 'true',
 	auth: {
-		user: SMTP_AUTH_USER,
-		pass: SMTP_AUTH_PASS
+		user: env.SMTP_AUTH_USER,
+		pass: env.SMTP_AUTH_PASS
 	}
 });
 

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { AppointmentBookedProps } from '$lib/emails/appointment_booked';
 	import { DateTime } from 'luxon';
-	import { BASE_URL } from '$env/static/private';
+	import { env } from '$env/dynamic/private';
 
 	let {
 		startTime,
@@ -14,7 +14,7 @@
 		reschedule
 	}: AppointmentBookedProps = $props();
 
-	let reschedule_link = `${BASE_URL}schedule${link_params}`;
+	let reschedule_link = `${env.BASE_URL}schedule${link_params}`;
 	let title = reschedule ? 'Appointment updated' : 'Appointment booked';
 </script>
 

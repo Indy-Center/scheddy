@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import { PUBLIC_FACILITY_NAME } from '$env/static/public';
+	import { env } from '$env/dynamic/public';
 	import Card from '$lib/ui/Card.svelte';
 	import { version } from '$app/environment';
 	import { HeartIcon } from 'lucide-svelte';
@@ -143,7 +143,7 @@
 			</p>
 
 			<h1 class="mt-1 font-bold text-2xl text-center">
-				{data.originalSessionType ? 'Reschedule' : 'Schedule'} appointment at {PUBLIC_FACILITY_NAME}
+				{data.originalSessionType ? 'Reschedule' : 'Schedule'} appointment at {env.PUBLIC_FACILITY_NAME}
 			</h1>
 
 			<div class="text-left mt-3 mb-6 flex flex-col gap-4 justify-center">

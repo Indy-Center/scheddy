@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import { PUBLIC_FACILITY_NAME } from '$env/static/public';
+	import { env } from '$env/dynamic/public';
 	import {
 		CalendarClockIcon,
 		CalendarIcon,
@@ -93,7 +93,7 @@
 		>
 			<MenuIcon />
 		</Button>
-		<h2 class="hidden md:block font-bold">{PUBLIC_FACILITY_NAME}</h2>
+		<h2 class="hidden md:block font-bold">{env.PUBLIC_FACILITY_NAME}</h2>
 		<p class="font-semibold">Hello, {data.user.firstName} {data.user.lastName} ({data.role})</p>
 	</div>
 
@@ -107,7 +107,7 @@
 			<span
 				class="md:hidden text-xl font-bold flex flex-row min-w-64 px-4 py-3 rounded hover:text-slate-300 transition justify-start items-start text-left hover:cursor-pointer"
 			>
-				{PUBLIC_FACILITY_NAME}
+				{env.PUBLIC_FACILITY_NAME}
 			</span>
 			{#each pages as p}
 				<a

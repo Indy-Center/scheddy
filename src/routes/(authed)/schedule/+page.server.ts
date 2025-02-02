@@ -8,7 +8,7 @@ import { eq, gte, or } from 'drizzle-orm';
 import type { DayAvailability, MentorAvailability } from '$lib/availability';
 import { DateTime, Duration, Interval } from 'luxon';
 import { fail, redirect } from '@sveltejs/kit';
-import { MAX_BOOKING_AHEAD_DAYS } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import { ulid } from 'ulid';
 import { appointment_booked } from '$lib/emails/appointment_booked';
 import { sendEmail } from '$lib/email';
@@ -24,7 +24,7 @@ function slottificate(
 	const now = DateTime.utc();
 	const tomorrow = now.plus({ days: 1 });
 	const validDaysToBook: DateTime[] = [];
-	for (let i = 0; i < Number.parseInt(MAX_BOOKING_AHEAD_DAYS); i++) {
+	for (let i = 0; i < Number.parseInt(env.MAX_BOOKING_AHEAD_DAYS); i++) {
 		validDaysToBook.push(now.plus({ days: i }));
 	}
 
