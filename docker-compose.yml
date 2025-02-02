@@ -11,5 +11,30 @@ services:
       MYSQL_DATABASE: scheddy
     volumes:
       - ztl-scheddy-data:/var/lib/mysql
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  scheddy:
+    build: .
+    env_file: .env
+    ports:
+      - '5173:3000'
+    environment:
+      - DATABASE_URL=mysql://ztl:ztl@db:3306/scheddy
+      - PUBLIC_VATSIM_OAUTH_CLIENT_ID=${PUBLIC_VATSIM_OAUTH_CLIENT_ID}
+      - PUBLIC_VATSIM_OAUTH_BASE=${PUBLIC_VATSIM_OAUTH_BASE}
+      - PUBLIC_VATSIM_OAUTH_REDIRECT_URL=${PUBLIC_VATSIM_OAUTH_REDIRECT_URL}
+      - PUBLIC_FACILITY_NAME=${PUBLIC_FACILITY_NAME}
+      - VATSIM_OAUTH_CLIENT_SECRET=${VATSIM_OAUTH_CLIENT_SECRET}
+      - VATUSA_API_BASE=${VATUSA_API_BASE}
+      - VATUSA_FACILITY_ID=${VATUSA_FACILITY_ID}
+      - VATUSA_API_KEY=${VATUSA_API_KEY}
+    depends_on:
+      db:
+        condition: service_healthy
+
 volumes:
   ztl-scheddy-data:
