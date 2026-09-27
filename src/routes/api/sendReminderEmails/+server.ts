@@ -1,9 +1,10 @@
 import { db } from '$lib/server/db';
 import { sessions, sessionTypes, students, mentors } from '$lib/server/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { DateTime } from 'luxon';
 import { sendEmail } from '$lib/email';
-import { reminder } from '$lib/emails/reminder';
+import { reminder } from '$lib/emails/student/reminder';
+import { serverConfig } from '$lib/config/server';
 
 export async function GET() {
 	const sess = await db
@@ -12,7 +13,7 @@ export async function GET() {
 		.leftJoin(mentors, eq(mentors.id, sessions.mentor))
 		.leftJoin(students, eq(students.id, sessions.student))
 		.leftJoin(sessionTypes, eq(sessionTypes.id, sessions.type))
-		.where(eq(sessions.reminded, false));
+		.where(and(eq(sessions.reminded, false), eq(sessions.cancelled, false)));
 
 	const sessWithin24h = sess.filter((u) => {
 		return DateTime.fromISO(u.session.start) <= DateTime.now().plus({ hours: 24 });
@@ -24,7 +25,9 @@ export async function GET() {
 			timezone: sess.session.timezone,
 			sessionId: sess.session.id,
 			type: sess.sessionType.name,
-			mentorName: sess.mentor.firstName + ' ' + sess.mentor.lastName
+			mentorName: sess.mentor.firstName + ' ' + sess.mentor.lastName,
+			facilityName: serverConfig.facility.name_public,
+			emailDomain: serverConfig.facility.mail_domain
 		});
 
 		await sendEmail(

@@ -1,11 +1,12 @@
 name: build
 on:
   push:
-    branches: main
+    tags:
+      - '*'
   workflow_dispatch:
 jobs:
   build:
-    name: Build
+    name: Build and deploy
     runs-on: ubuntu-latest
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
@@ -18,6 +19,7 @@ jobs:
       VATUSA_API_BASE: ${{ vars.VATUSA_API_BASE }}
       VATUSA_API_KEY: ${{ secrets.VATUSA_API_KEY }}
       MAX_BOOKING_AHEAD_DAYS: ${{ vars.MAX_BOOKING_AHEAD_DAYS }}
+      MAX_PENDING_SESSIONS: ${{ vars.MAX_PENDING_SESSIONS }}
       SMTP_HOST: ${{ secrets.SMTP_HOST }}
       SMTP_PORT: ${{ secrets.SMTP_PORT }}
       SMTP_SECURE: ${{ secrets.SMTP_SECURE }}
@@ -28,29 +30,20 @@ jobs:
       PUBLIC_SENTRY_DSN: ${{ secrets.PUBLIC_SENTRY_DSN }}
       API_MASTER_KEY: ${{ secrets.API_MASTER_KEY }}
       BASE_URL: ${{ vars.BASE_URL }}
+      ARTCC_EMAIL_DOMAIN: ${{ vars.ARTCC_EMAIL_DOMAIN }}
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
       - name: Install build dependencies
-        run: bun install --frozen-lockfile
+        run: bun install --frozen-lockfile && bun svelte-kit sync
       - name: Build production bundle
         run: bun --bun run build
       - name: Copy package manager tools
-        run: cp package.json build/ && cp bun.lockb build/
+        run: cp package.json build/ && cp bun.lock build/
       - name: Install production dependencies
         run: cd build && bun i --frozen-lockfile --production
-      - name: Pack production bundle
-        run: cp -r build scheddy && tar -czvf scheddy.tar.gz scheddy
-      - name: Put server in maintenance mode
-        uses: garygrossgarten/github-action-ssh@release
-        with:
-          command: sudo touch /etc/caddy/maintenance.on
-          host: ${{ secrets.SERVER_HOST }}
-          port: ${{ secrets.SERVER_PORT }}
-          username: ${{ secrets.SERVER_USERNAME }}
-          privateKey: ${{ secrets.SERVER_PRIVATE_KEY }}
       - name: Stop main server
         uses: garygrossgarten/github-action-ssh@release
         with:
@@ -63,25 +56,31 @@ jobs:
         uses: burnett01/rsync-deployments@5.2
         with:
           switches: -avzP
-          path: scheddy
+          path: .
           remote_path: ${{ secrets.SERVER_PATH }}
           remote_host: ${{ secrets.SERVER_HOST }}
           remote_user: ${{ secrets.SERVER_USERNAME }}
           remote_key: ${{ secrets.SERVER_PRIVATE_KEY }}
+      - name: Zip for release
+        run: tar cJvf /tmp/scheddy.tar.xz *
+      - name: Create release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: /tmp/scheddy.tar.xz
+          artifactErrorsFailBuild: false
+          draft: true
+          generateReleaseNotes: true
+      #- name: Upload artifact for release
+      #  uses: actions/upload-artifact@v4
+      #  with:
+      #    name: scheddy_bundle
+      #    path: .
       - name: Run database migrations
         run: bun drizzle-kit migrate
       - name: Start main server
         uses: garygrossgarten/github-action-ssh@release
         with:
           command: sudo systemctl start scheddy
-          host: ${{ secrets.SERVER_HOST }}
-          port: ${{ secrets.SERVER_PORT }}
-          username: ${{ secrets.SERVER_USERNAME }}
-          privateKey: ${{ secrets.SERVER_PRIVATE_KEY }}
-      - name: Put server in production mode
-        uses: garygrossgarten/github-action-ssh@release
-        with:
-          command: sudo rm /etc/caddy/maintenance.on
           host: ${{ secrets.SERVER_HOST }}
           port: ${{ secrets.SERVER_PORT }}
           username: ${{ secrets.SERVER_USERNAME }}

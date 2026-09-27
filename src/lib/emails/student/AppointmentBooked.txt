@@ -1,0 +1,16 @@
+Appointment booked!
+-------------------
+
+This is your confirmation email for your upcoming session.
+-- Session type:  {type}
+-- Date/time:     {startTime}
+-- Timezone:      {timezone}
+-- Duration:      {duration} minutes
+-- Mentor:        {mentorName}
+
+Cancel/Reschedule: {rescheduleLink}
+
+---
+
+Confirmation ID {sessionId}.
+You are receiving this email because you have booked a session with the {facilityName}. If you believe to have received this email in error, please contact wm@{emailDomain}.

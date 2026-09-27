@@ -1,0 +1,10 @@
+Appointment Reminder
+--------------------
+
+This email is to remind you of your upcoming {type} session at {startTime} ({timezone}).
+As it is now within 24 hours, directly contact {mentorName}, your mentor, to make any changes.
+
+---
+
+Confirmation ID {sessionId}.
+You are receiving this email because you have booked a session with the {facilityName}. If you believe to have received this email in error, please contact wm@{emailDomain}.

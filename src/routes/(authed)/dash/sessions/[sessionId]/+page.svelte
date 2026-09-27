@@ -1,187 +1,107 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import { DateTime } from 'luxon';
-	import Button from '$lib/ui/Button.svelte';
-	import ModalHeader from '$lib/ui/modal/ModalHeader.svelte';
-	import Modal from '$lib/ui/modal/Modal.svelte';
-	import ModalBody from '$lib/ui/modal/ModalBody.svelte';
-	import ModalFooter from '$lib/ui/modal/ModalFooter.svelte';
+	import CalendarDaysIcon from '@lucide/svelte/icons/calendar-days';
+	import ClockIcon from '@lucide/svelte/icons/clock';
+	import GraduationCapIcon from '@lucide/svelte/icons/graduation-cap';
+	import IdCardIcon from '@lucide/svelte/icons/id-card';
+	import PencilIcon from '@lucide/svelte/icons/pencil';
+	import X from '@lucide/svelte/icons/x';
+	import { Button } from '$lib/components/ui/button';
+	import DataDisplay from './DataDisplay.svelte';
+	import { roleOf } from '$lib';
+	import { ROLE_STAFF, roleString } from '$lib/utils';
 	import { goto, invalidateAll } from '$app/navigation';
-	import Input from '$lib/ui/form/Input.svelte';
+	import { toast } from 'svelte-sonner';
 
 	interface Props {
 		data: PageData;
 	}
 	let { data }: Props = $props();
 
-	let cancelOpen = $state(false);
-	let rescheduleOpen = $state(false);
+	async function accept() {
+		await fetch('?/accept', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded'
+			}
+		});
+		toast.success('Session accepted successfully!');
+		await invalidateAll();
+	}
 
-	let date: string = $state('');
-	let hour: number = $state(0);
-	let minute: number = $state(0);
+	async function decline() {
+		await fetch('?/decline', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded'
+			}
+		});
+		await goto(`/dash/mentors/${data.user.id}`);
+		toast.success('Session declined successfully!');
+		await invalidateAll();
+	}
 
-	async function cancel() {
+	async function cancel_request() {
 		await fetch('?/cancel', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/x-www-form-urlencoded'
 			}
 		});
-		await goto('/dash');
+		toast.success('Session transfer request cancelled successfully!');
 		await invalidateAll();
-	}
-	async function reschedule() {
-		let udata = new URLSearchParams();
-
-		console.log(date);
-
-		let [ys, ms, ds] = date.split('-');
-		let y = Number.parseInt(ys);
-		let m = Number.parseInt(ms);
-		let d = Number.parseInt(ds);
-
-		let datetime = DateTime.now().setZone(data.sessionInfo.mentor.timezone).set({
-			year: y,
-			month: m,
-			day: d,
-			hour: hour,
-			minute: minute,
-			second: 0,
-			millisecond: 0
-		});
-
-		udata.set('date', datetime.toISO()!);
-		await fetch('?/reschedule', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded'
-			},
-			body: udata.toString()
-		});
-
-		await invalidateAll();
-		rescheduleOpen = false;
 	}
 </script>
 
-<div class="flex flex-col gap-4">
-	<h1 class="text-2xl font-semibold">
-		Session - {data.sessionInfo.sessionType.name} at {DateTime.fromISO(
-			data.sessionInfo.session.start
-		).toLocaleString(DateTime.DATETIME_HUGE)} for {data.sessionInfo.student.firstName}
-		{data.sessionInfo.student.lastName}
-	</h1>
-	<p>
-		<b>Student:</b>
-		{data.sessionInfo.student.firstName}
-		{data.sessionInfo.student.lastName} ({data.sessionInfo.student.id})
-	</p>
-	<p>
-		<b>Mentor:</b>
-		{data.sessionInfo.mentor.firstName}
-		{data.sessionInfo.mentor.lastName} ({data.sessionInfo.mentor.id})
-	</p>
-	<p>
-		<b>Date:</b>
-		{DateTime.fromISO(data.sessionInfo.session.start).toLocaleString(DateTime.DATETIME_HUGE)}
-	</p>
-	<p>
-		<b>Session Type:</b>
-		{data.sessionInfo.sessionType.category} - {data.sessionInfo.sessionType.name}
-	</p>
-	<p><b>Duration:</b> {data.sessionInfo.sessionType.length} minutes</p>
+<h2 class="text-xl font-semibold">Session Information</h2>
+
+<table class="max-w-2xl">
+	<tbody>
+		<DataDisplay icon={GraduationCapIcon} label="Student">
+			{data.sessionInfo.student.firstName}
+			{data.sessionInfo.student.lastName}
+		</DataDisplay>
+		<DataDisplay icon={IdCardIcon} label="Mentor">
+			{data.sessionInfo.mentor.firstName}
+			{data.sessionInfo.mentor.lastName}
+		</DataDisplay>
+		<DataDisplay icon={CalendarDaysIcon} label="Date">
+			{DateTime.fromISO(data.sessionInfo.session.start).toLocaleString(DateTime.DATETIME_HUGE)}
+		</DataDisplay>
+		<DataDisplay icon={ClockIcon} label="Duration">
+			{data.sessionInfo.sessionType.length} minutes
+		</DataDisplay>
+		{#if roleOf(data.user) >= ROLE_STAFF}
+			<DataDisplay icon={PencilIcon} label="Created By">
+				{data.createdBy}
+			</DataDisplay>
+		{/if}
+		{#if data.sessionInfo.session.cancelled}
+			<DataDisplay icon={X} label="Cancelled">
+				{roleString(data.sessionInfo.session.cancellationUserLevel ?? 0)}:
+				{data.sessionInfo.session.cancellationReason}
+			</DataDisplay>
+		{/if}
+	</tbody>
+</table>
+
+<div class="flex flex-row flex-wrap gap-2">
 	{#if data.isMentor}
-		<h2 class="font-bold text-lg">Mentor/Staff Actions</h2>
-		<div>
-			<Button
-				onclick={() => {
-					cancelOpen = true;
-				}}
-				variant="danger"
-			>
+		<Button href="/dash/sessions/{data.sessionInfo.session.id}/edit">Edit</Button>
+		{#if !data.pastSession}
+			<Button href="/dash/sessions/{data.sessionInfo.session.id}/cancel" variant="destructive">
 				Cancel
 			</Button>
-			<Button
-				onclick={() => {
-					rescheduleOpen = true;
-				}}
-				variant="danger"
-			>
-				Reschedule
-			</Button>
-		</div>
+		{/if}
+		{#if !data.pendingTransfer}
+			<Button href="/dash/sessions/{data.sessionInfo.session.id}/transfer">Transfer</Button>
+		{:else}
+			<Button onclick={cancel_request} variant="destructive">Cancel Transfer Request</Button>
+		{/if}
+	{/if}
+	{#if data.newMentor}
+		<Button onclick={accept}>Accept</Button>
+		<Button variant="destructive" onclick={decline}>Decline</Button>
 	{/if}
 </div>
-
-{#if data.isMentor}
-	<Modal
-		onclose={() => {
-			cancelOpen = false;
-		}}
-		bind:open={cancelOpen}
-	>
-		<ModalHeader
-			onclose={() => {
-				cancelOpen = false;
-			}}
-			title="Confirm cancellation"
-		/>
-		<ModalBody>
-			<div class="px-4">
-				<p class="text-red-500">
-					It is your responsibility to inform the student of the cancellation.
-				</p>
-			</div>
-		</ModalBody>
-		<ModalFooter>
-			<Button
-				onclick={() => {
-					cancelOpen = false;
-				}}
-				variant="ghost"
-				size="sm">Nevermind</Button
-			>
-			<Button onclick={cancel} variant="danger" size="sm">Yes, cancel</Button>
-		</ModalFooter>
-	</Modal>
-	<Modal
-		onclose={() => {
-			rescheduleOpen = false;
-		}}
-		bind:open={rescheduleOpen}
-	>
-		<ModalHeader
-			rescheduleOpen={() => {
-				rescheduleOpen = false;
-			}}
-			title="Reschedule"
-		/>
-		<ModalBody>
-			<div class="px-4">
-				<p>Timezone: {data.sessionInfo.mentor.timezone}</p>
-				<div class="flex flex-col">
-					<Input bind:value={date} label="date" type="date" />
-					<div class="flex flex-row gap-4">
-						<Input bind:value={hour} type="number" label="HH" />
-						<Input bind:value={minute} type="number" label="MM" />
-					</div>
-				</div>
-
-				<p class="text-red-500">
-					It is your responsibility to inform the student of the rescheduling.
-				</p>
-			</div>
-		</ModalBody>
-		<ModalFooter>
-			<Button
-				onclick={() => {
-					rescheduleOpen = false;
-				}}
-				variant="ghost"
-				size="sm">Nevermind</Button
-			>
-			<Button onclick={reschedule} variant="danger" size="sm">Reschedule</Button>
-		</ModalFooter>
-	</Modal>
-{/if}

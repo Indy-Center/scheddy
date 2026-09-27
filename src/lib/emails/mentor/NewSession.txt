@@ -1,0 +1,14 @@
+New session booked
+-------------------
+
+A student has booked an appointment. Here are the details:
+-- Session type:  {type}
+-- Date/time:     {startTime}
+-- Timezone:      {timezone}
+-- Duration:      {duration} minutes
+-- Student:       {studentName}
+
+---
+
+Confirmation ID {sessionId}.
+You are receiving this email because you are a mentor with the {facilityName}. If you believe to have received this email in error, please contact wm@{emailDomain}.
