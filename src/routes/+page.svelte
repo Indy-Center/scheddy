@@ -12,13 +12,7 @@
 			<Card.Title>{clientConfig.facility.name_public} - Scheddy</Card.Title>
 		</Card.Header>
 		<Card.Content>
-			<Button
-				href="{clientConfig.auth.vatsim
-					.base_public}/oauth/authorize?response_type=code&client_id={clientConfig.auth.vatsim
-					.client_id_public}&redirect_uri={clientConfig.site.base_public}callback"
-			>
-				Login with VATSIM
-			</Button>
+			<Button href="/login" data-sveltekit-reload>Login with VATSIM</Button>
 		</Card.Content>
 		<Card.Footer class="text-sm text-muted-foreground justify-center">
 			<a

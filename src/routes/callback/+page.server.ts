@@ -1,8 +1,8 @@
 import type { PageServerLoad } from './$types';
 import { db } from '$lib/server/db';
-import { userTokens, users } from '$lib/server/db/schema';
-import { nanoid } from 'nanoid';
+import { users } from '$lib/server/db/schema';
 import { redirect } from '@sveltejs/kit';
+import { callbackUrl, consumeOAuthState, createSession } from '$lib/server/session';
 import { ROLE_DEVELOPER, ROLE_STAFF, ROLE_MENTOR, ROLE_STUDENT } from '$lib/utils';
 import { serverConfig } from '$lib/config/server';
 import { determineHighestRole } from '$lib/helpers/auth';
@@ -21,6 +21,15 @@ export const load: PageServerLoad = async ({ cookies, url, fetch }) => {
 		};
 	}
 
+	if (!consumeOAuthState(cookies, url.searchParams.get('state'))) {
+		return {
+			success: false,
+			error_code: 'invalid_state',
+			error_description: 'Your login attempt expired or was invalid. Please try logging in again.',
+			error_message: 'Your login attempt expired or was invalid. Please try logging in again.'
+		};
+	}
+
 	const code = url.searchParams.get('code');
 	if (!code) {
 		return {
@@ -35,7 +44,7 @@ export const load: PageServerLoad = async ({ cookies, url, fetch }) => {
 	request_body.set('grant_type', 'authorization_code');
 	request_body.set('client_id', serverConfig.auth.vatsim.client_id_public);
 	request_body.set('client_secret', serverConfig.auth.vatsim.client_secret);
-	request_body.set('redirect_uri', serverConfig.site.base_public + 'callback');
+	request_body.set('redirect_uri', callbackUrl());
 	request_body.set('code', code);
 	request_body.set('scope', '');
 
@@ -147,13 +156,7 @@ export const load: PageServerLoad = async ({ cookies, url, fetch }) => {
 			}
 		});
 
-	const utoken = nanoid();
-	await db.insert(userTokens).values({
-		id: utoken,
-		user: cid
-	});
-
-	cookies.set('scheddy_token', utoken, { path: '/', httpOnly: false });
+	await createSession(cookies, cid);
 
 	redirect(307, '/schedule');
 };

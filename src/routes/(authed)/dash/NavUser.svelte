@@ -8,7 +8,7 @@
 	import SunMoonIcon from '@lucide/svelte/icons/sun-moon';
 	import UserIcon from '@lucide/svelte/icons/user';
 	import LogOutIcon from '@lucide/svelte/icons/log-out';
-	import { goto, invalidateAll } from '$app/navigation';
+	import { logout } from '$lib/logout';
 	import { setMode, systemPrefersMode } from 'mode-watcher';
 
 	interface Props {
@@ -18,12 +18,6 @@
 	let { name, role }: Props = $props();
 
 	const sidebar = useSidebar();
-
-	function logout() {
-		document.cookie = 'scheddy_token=; expires=Thu, 01-Jan-1970 00:00:01 GMT; path=/;';
-		invalidateAll();
-		goto('/');
-	}
 </script>
 
 <Sidebar.Menu>

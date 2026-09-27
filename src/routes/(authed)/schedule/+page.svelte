@@ -6,7 +6,7 @@
 	import { version } from '$app/environment';
 	import HeartIcon from '@lucide/svelte/icons/heart';
 	import LoaderCircle from '@lucide/svelte/icons/loader-circle';
-	import { goto, invalidateAll } from '$app/navigation';
+	import { logout } from '$lib/logout';
 	import { superForm } from 'sveltekit-superforms';
 	import { DateTime, Interval } from 'luxon';
 	import { roleOf } from '$lib';
@@ -18,12 +18,6 @@
 		data: PageData;
 	}
 	let { data }: Props = $props();
-
-	function logout() {
-		document.cookie = 'scheddy_token=; expires=Thu, 01-Jan-1970 00:00:01 GMT; path=/;';
-		invalidateAll();
-		goto('/');
-	}
 
 	let done = $state(false);
 

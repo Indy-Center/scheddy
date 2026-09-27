@@ -2,6 +2,7 @@
 	import * as Card from '$lib/components/ui/card';
 	import type { PageData } from './$types';
 	import { goto, invalidateAll } from '$app/navigation';
+	import { logout } from '$lib/logout';
 	import { Button } from '$lib/components/ui/button';
 	import { toast } from 'svelte-sonner';
 	import { clientConfig } from '$lib/config/client';
@@ -10,12 +11,6 @@
 		data: PageData;
 	}
 	let { data }: Props = $props();
-
-	function logout() {
-		document.cookie = 'scheddy_token=; expires=Thu, 01-Jan-1970 00:00:01 GMT; path=/;';
-		invalidateAll();
-		goto('/');
-	}
 
 	async function del() {
 		await fetch('?', {
