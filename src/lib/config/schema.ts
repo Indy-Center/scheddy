@@ -20,10 +20,9 @@ export const baseConfig = {
 		master_key: 'this must be overridden'
 	},
 	auth: {
-		vatsim: {
-			base_public: 'https://auth-dev.vatsim.net',
-			client_id_public: 'your_client_id',
-			client_secret: 'secret'
+		identity: {
+			base_public: 'https://id.flyindycenter.com',
+			client_id_public: 'scheddy'
 		},
 		vatusa: {
 			base: 'https://api.vatusa.net',
