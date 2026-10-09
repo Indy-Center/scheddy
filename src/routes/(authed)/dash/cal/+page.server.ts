@@ -1,3 +1,4 @@
+import { base } from '$app/paths';
 import { loadUserData } from '$lib/userInfo';
 import { roleOf } from '$lib';
 import { ROLE_MENTOR } from '$lib/utils';
@@ -12,7 +13,7 @@ import { backgroundColors } from '$lib/ui/cal/utils/utils';
 export const load: PageServerLoad = async ({ cookies }) => {
 	const { user } = (await loadUserData(cookies))!;
 	if (roleOf(user) < ROLE_MENTOR) {
-		redirect(307, '/schedule');
+		redirect(307, `${base}/schedule`);
 	}
 
 	const mentorSessions = await db

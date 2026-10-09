@@ -32,6 +32,11 @@ All variables must be set at **runtime**. They must be visible to the main serve
 | `SCHEDDY_API_MASTER_KEY`                 | Yes       | A randomly generated secret key to use for the API.                                                         | `GENERATE_YOUR_OWN_YOU_HAVE_BEEN_WARNED`                         |
 | `PUBLIC_SENTRY_DSN`                      | No        | Sentry DSN for error reporting. Help make Scheddy better - please use ours!                                 | `https://ce463d975d42f1a39ec94cbf87405e46@sentry.coredoes.dev/2` |
 
+> **Serving under a path prefix**
+>
+> To host Scheddy at a sub-path (e.g. `https://training.flyindycenter.com/scheddy/`), set `PUBLIC_SCHEDDY_SITE_BASE` to the full URL with the prefix and trailing slash, and set `BASE_PATH=/scheddy` at **build time**.
+> `BASE_PATH` is baked into the build, so it is a Docker build arg (`--build-arg BASE_PATH=/scheddy`; the CI workflow reads the `BASE_PATH` repository variable), not a runtime variable. Your reverse proxy must forward `/scheddy/*` to Scheddy unchanged, without stripping the prefix.
+
 > **Note**
 >
 > We rely on Sentry to get issue reports outside of ZTL. We would greatly appreciate if you use our sentry DSN, so that we get reports of any errors that pop up.

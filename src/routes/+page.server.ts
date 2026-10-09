@@ -1,3 +1,4 @@
+import { base } from '$app/paths';
 import type { PageServerLoad } from './$types';
 import { loadUserData } from '$lib/userInfo';
 import { redirect } from '@sveltejs/kit';
@@ -5,6 +6,6 @@ import { redirect } from '@sveltejs/kit';
 export const load: PageServerLoad = async ({ cookies }) => {
 	const maybeUser = await loadUserData(cookies, true);
 	if (maybeUser) {
-		redirect(307, '/schedule');
+		redirect(307, `${base}/schedule`);
 	}
 };

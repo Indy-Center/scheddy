@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { base } from '$app/paths';
+
 	import { goto } from '$app/navigation';
 	import { superForm } from 'sveltekit-superforms';
 	import type { PageData } from './$types';
@@ -15,7 +17,7 @@
 	const form = superForm(data.form, {
 		async onUpdated({ form }) {
 			if (form.valid) {
-				await goto(`/dash/sessions/${data.sessionId}`);
+				await goto(`${base}/dash/sessions/${data.sessionId}`);
 				toast.success('Session transfer request sent!');
 			}
 		}

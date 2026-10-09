@@ -1,3 +1,4 @@
+import { base } from '$app/paths';
 import { loadUserData, type SessionAndFriends } from '$lib/userInfo';
 import { roleOf } from '$lib';
 import { ROLE_STAFF } from '$lib/utils';
@@ -45,7 +46,7 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 			user.id == transfer[0].newMentor
 		)
 	) {
-		redirect(307, '/schedule');
+		redirect(307, `${base}/schedule`);
 	}
 
 	const createdByUser = await db
@@ -102,7 +103,7 @@ export const actions: Actions = {
 			.where(eq(pendingTransfers.sessionId, sessionAndFriends.session.id));
 
 		if (roleOf(user) < ROLE_STAFF && !(user.id == transfer[0].newMentor)) {
-			redirect(307, '/schedule');
+			redirect(307, `${base}/schedule`);
 		}
 
 		const newMentor = await db.select().from(users).where(eq(users.id, transfer[0].newMentor));
@@ -205,7 +206,7 @@ export const actions: Actions = {
 			.where(eq(pendingTransfers.sessionId, sessionAndFriends.session.id));
 
 		if (roleOf(user) < ROLE_STAFF && !(user.id == transfer[0].newMentor)) {
-			redirect(307, '/schedule');
+			redirect(307, `${base}/schedule`);
 		}
 
 		const oldMentorEmailContent = session_transfer_result({
@@ -247,7 +248,7 @@ export const actions: Actions = {
 		const sessionAndFriends = sessionList[0] as unknown as SessionAndFriends;
 
 		if (roleOf(user) < ROLE_STAFF && user.id != sessionAndFriends.session.mentor) {
-			redirect(307, '/schedule');
+			redirect(307, `${base}/schedule`);
 		}
 
 		await db

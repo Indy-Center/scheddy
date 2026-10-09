@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { base } from '$app/paths';
+
 	import type { PageData } from './$types';
 	import { superForm } from 'sveltekit-superforms';
 	import { goto } from '$app/navigation';
@@ -23,7 +25,7 @@
 		dataType: 'json',
 		async onUpdated({ form }) {
 			if (form.valid) {
-				await goto(`/dash/mentors/${data.mentor.id}`);
+				await goto(`${base}/dash/mentors/${data.mentor.id}`);
 				toast.success('Availability updated!');
 			}
 		}

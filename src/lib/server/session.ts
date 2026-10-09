@@ -1,5 +1,6 @@
 import type { Cookies } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
+import { base } from '$app/paths';
 import { nanoid } from 'nanoid';
 import { db } from '$lib/server/db';
 import { userTokens } from '$lib/server/db/schema';
@@ -15,7 +16,7 @@ const OAUTH_STATE_MAX_AGE_SECONDS = 10 * 60;
 
 function cookieOptions(maxAgeSeconds: number) {
 	return {
-		path: '/',
+		path: base || '/',
 		httpOnly: true,
 		secure: serverConfig.site.base_public.startsWith('https://'),
 		sameSite: 'lax' as const,
@@ -48,7 +49,7 @@ export async function validateSession(
 	const now = Date.now();
 	if (token.expiresAt < now) {
 		await db.delete(userTokens).where(eq(userTokens.id, token.id));
-		cookies.delete(SESSION_COOKIE, { path: '/' });
+		cookies.delete(SESSION_COOKIE, { path: base || '/' });
 		return false;
 	}
 	if (token.expiresAt - now < SESSION_REFRESH_THRESHOLD_MS) {
@@ -64,7 +65,7 @@ export async function destroySession(cookies: Cookies): Promise<void> {
 	if (token) {
 		await db.delete(userTokens).where(eq(userTokens.id, token));
 	}
-	cookies.delete(SESSION_COOKIE, { path: '/' });
+	cookies.delete(SESSION_COOKIE, { path: base || '/' });
 }
 
 export function createOAuthState(cookies: Cookies): string {
@@ -77,6 +78,6 @@ export function createOAuthState(cookies: Cookies): string {
 // /login. The cookie is single-use and cleared either way.
 export function consumeOAuthState(cookies: Cookies, returnedState: string | null): boolean {
 	const expected = cookies.get(OAUTH_STATE_COOKIE);
-	cookies.delete(OAUTH_STATE_COOKIE, { path: '/' });
+	cookies.delete(OAUTH_STATE_COOKIE, { path: base || '/' });
 	return !!expected && !!returnedState && expected === returnedState;
 }

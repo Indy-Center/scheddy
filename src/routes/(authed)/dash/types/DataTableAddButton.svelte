@@ -1,9 +1,11 @@
 <script lang="ts">
+	import { base } from '$app/paths';
+
 	import { Button } from '$lib/components/ui/button';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 </script>
 
-<Button class="float-right" size="sm" href="/dash/types/add">
+<Button class="float-right" size="sm" href="{base}/dash/types/add">
 	<PlusIcon class="size-4" />
 	Add
 </Button>

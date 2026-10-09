@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { base } from '$app/paths';
+
 	import type { PageData } from './$types';
 	import { goto } from '$app/navigation';
 	import { superForm } from 'sveltekit-superforms';
@@ -18,7 +20,7 @@
 	const form = superForm(data.form, {
 		async onUpdated({ form }) {
 			if (form.valid) {
-				await goto('/dash/types');
+				await goto(`${base}/dash/types`);
 				toast.success('Session type added!');
 			}
 		}

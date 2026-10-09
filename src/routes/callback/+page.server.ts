@@ -1,3 +1,4 @@
+import { base } from '$app/paths';
 import type { PageServerLoad } from './$types';
 import { db } from '$lib/server/db';
 import { users } from '$lib/server/db/schema';
@@ -6,13 +7,7 @@ import { callbackUrl, consumeOAuthState, createSession } from '$lib/server/sessi
 import { ROLE_DEVELOPER, ROLE_STAFF, ROLE_MENTOR, ROLE_STUDENT } from '$lib/utils';
 import { serverConfig } from '$lib/config/server';
 import { determineHighestRole } from '$lib/helpers/auth';
-import {
-	cidOf,
-	exchangeCode,
-	getUserinfo,
-	IdentityError,
-	revokeToken
-} from '$lib/server/identity';
+import { cidOf, exchangeCode, getUserinfo, IdentityError, revokeToken } from '$lib/server/identity';
 
 export const load: PageServerLoad = async ({ cookies, url, fetch }) => {
 	if (url.searchParams.has('error')) {
@@ -134,5 +129,5 @@ export const load: PageServerLoad = async ({ cookies, url, fetch }) => {
 
 	await createSession(cookies, cid);
 
-	redirect(307, '/schedule');
+	redirect(307, `${base}/schedule`);
 };

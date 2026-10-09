@@ -6,6 +6,7 @@
 	// yes, this imports itself
 	import NavItem from './NavItem.svelte';
 	import { page } from '$app/state';
+	import { base } from '$app/paths';
 
 	interface Props {
 		data: NestedMenuItem[];
@@ -21,9 +22,12 @@
 
 {#each data as item (item.title)}
 	{#if item.visible}
-		{@const isActive = page.url.pathname === item.url}
+		{@const isActive = page.url.pathname === base + item.url}
 		{#if item.children}
-			<Collapsible.Root open={page.url.pathname.startsWith(item.url)} class="group/collapsible">
+			<Collapsible.Root
+				open={page.url.pathname.startsWith(base + item.url)}
+				class="group/collapsible"
+			>
 				{#snippet child({ props })}
 					<components.item {...props}>
 						<Collapsible.Trigger class={isActive ? 'bg-sidebar-accent' : ''}>
@@ -33,7 +37,7 @@
 										{item.title}
 									{/snippet}
 									{#snippet child({ props })}
-										<a href={item.url} {...props}>
+										<a href={base + item.url} {...props}>
 											{#if item.icon}
 												<item.icon />
 											{/if}
@@ -58,7 +62,7 @@
 			<components.item>
 				<components.button class={isActive ? 'bg-sidebar-accent' : ''}>
 					{#snippet child({ props })}
-						<a href={item.url} {...props}>
+						<a href={base + item.url} {...props}>
 							<item.icon />
 							<span>{item.title}</span>
 						</a>

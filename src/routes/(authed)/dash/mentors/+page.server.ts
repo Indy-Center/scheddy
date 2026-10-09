@@ -1,3 +1,4 @@
+import { base } from '$app/paths';
 import { loadUserData } from '$lib/userInfo';
 import { roleOf } from '$lib';
 import { ROLE_MENTOR, ROLE_STAFF } from '$lib/utils';
@@ -10,7 +11,7 @@ import type { PageServerLoad } from './$types';
 export const load: PageServerLoad = async ({ cookies }) => {
 	const { user } = (await loadUserData(cookies))!;
 	if (roleOf(user) < ROLE_STAFF) {
-		redirect(307, '/schedule');
+		redirect(307, `${base}/schedule`);
 	}
 	const mentors = await db
 		.select()

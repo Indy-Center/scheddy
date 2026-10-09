@@ -7,6 +7,7 @@
 	import { roleOf } from '$lib';
 	import { Separator } from '$lib/components/ui/separator';
 	import { page } from '$app/state';
+	import { base } from '$app/paths';
 
 	interface Props {
 		data: PageData;
@@ -35,8 +36,9 @@
 								{@const last = i === page.data.breadcrumbs.length - 1}
 								<Breadcrumb.Item>
 									{#if breadcrumb.url}
-										<Breadcrumb.Link class={last ? '' : 'hidden md:block'} href={breadcrumb.url}
-											>{breadcrumb.title}</Breadcrumb.Link
+										<Breadcrumb.Link
+											class={last ? '' : 'hidden md:block'}
+											href={base + breadcrumb.url}>{breadcrumb.title}</Breadcrumb.Link
 										>
 									{:else}
 										<Breadcrumb.Page class={last ? '' : 'hidden md:block'}

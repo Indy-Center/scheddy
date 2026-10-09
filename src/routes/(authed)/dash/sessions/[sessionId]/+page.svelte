@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { base } from '$app/paths';
+
 	import type { PageData } from './$types';
 	import { DateTime } from 'luxon';
 	import CalendarDaysIcon from '@lucide/svelte/icons/calendar-days';
@@ -37,7 +39,7 @@
 				'Content-Type': 'application/x-www-form-urlencoded'
 			}
 		});
-		await goto(`/dash/mentors/${data.user.id}`);
+		await goto(`${base}/dash/mentors/${data.user.id}`);
 		toast.success('Session declined successfully!');
 		await invalidateAll();
 	}
@@ -88,14 +90,17 @@
 
 <div class="flex flex-row flex-wrap gap-2">
 	{#if data.isMentor}
-		<Button href="/dash/sessions/{data.sessionInfo.session.id}/edit">Edit</Button>
+		<Button href="{base}/dash/sessions/{data.sessionInfo.session.id}/edit">Edit</Button>
 		{#if !data.pastSession}
-			<Button href="/dash/sessions/{data.sessionInfo.session.id}/cancel" variant="destructive">
+			<Button
+				href="{base}/dash/sessions/{data.sessionInfo.session.id}/cancel"
+				variant="destructive"
+			>
 				Cancel
 			</Button>
 		{/if}
 		{#if !data.pendingTransfer}
-			<Button href="/dash/sessions/{data.sessionInfo.session.id}/transfer">Transfer</Button>
+			<Button href="{base}/dash/sessions/{data.sessionInfo.session.id}/transfer">Transfer</Button>
 		{:else}
 			<Button onclick={cancel_request} variant="destructive">Cancel Transfer Request</Button>
 		{/if}

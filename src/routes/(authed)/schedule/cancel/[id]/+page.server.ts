@@ -1,3 +1,4 @@
+import { base } from '$app/paths';
 import type { PageServerLoad, Actions } from './$types';
 import { loadUserData, type SessionAndFriends } from '$lib/userInfo';
 import { ROLE_STUDENT, roleString } from '$lib/utils';
@@ -18,7 +19,7 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 	const session = (await db.select().from(sessions).where(eq(sessions.id, params.id)))[0];
 
 	if (session.student != user.id) {
-		return redirect(307, '/schedule');
+		return redirect(307, `${base}/schedule`);
 	}
 
 	const sessionTime = DateTime.fromISO(session.start);
@@ -41,7 +42,7 @@ export const actions: Actions = {
 		const sessionAndFriends = sessionList[0] as unknown as SessionAndFriends;
 
 		if (sessionAndFriends.session.student != user.id) {
-			return redirect(307, '/schedule');
+			return redirect(307, `${base}/schedule`);
 		}
 
 		const studentEmailContent = appointment_canceled({

@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { base } from '$app/paths';
+
 	import type { PageData } from './$types';
 	import * as Card from '$lib/components/ui/card';
 	import ArrowUpDown from '@lucide/svelte/icons/arrow-up-down';
@@ -37,7 +39,7 @@
 		<Card.Content class="px-6 pb-6 pt-4">
 			<div class="text-2xl font-bold">{data.yourSessions}</div>
 			<a
-				href="/dash/mentors/{data.user.id}"
+				href="{base}/dash/mentors/{data.user.id}"
 				class="text-muted-foreground text-xs hover:underline underline-offset-4"
 				>Your schedule &rarr;</a
 			>
@@ -50,7 +52,9 @@
 		</Card.Header>
 		<Card.Content class="px-6 pb-6 pt-4">
 			<div class="text-2xl font-bold">{data.upcoming}</div>
-			<a href="/dash/cal" class="text-muted-foreground text-xs hover:underline underline-offset-4"
+			<a
+				href="{base}/dash/cal"
+				class="text-muted-foreground text-xs hover:underline underline-offset-4"
 				>Facility calendar &rarr;</a
 			>
 		</Card.Content>
@@ -63,7 +67,7 @@
 		<Card.Content class="px-6 pb-6 pt-4">
 			<div class="text-2xl font-bold">{data.transferRequests}</div>
 			<a
-				href="/dash/cal/transfer_requests"
+				href="{base}/dash/cal/transfer_requests"
 				class="text-muted-foreground text-xs hover:underline underline-offset-4"
 				>Transfer Requests &rarr;</a
 			>

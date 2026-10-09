@@ -10,6 +10,10 @@ FROM base AS prerelease
 COPY --from=install /temp/dev/node_modules node_modules
 COPY . .
 
+# Build-time path prefix, e.g. /scheddy
+ARG BASE_PATH=
+ENV BASE_PATH=$BASE_PATH
+
 RUN bun --bun run build
 
 FROM base AS release

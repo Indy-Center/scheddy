@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { base } from '$app/paths';
+
 	import type { PageData } from './$types';
 	import * as Tabs from '$lib/components/ui/tabs';
 	import DataTable from '$lib/ui/DataTable.svelte';
@@ -26,7 +28,7 @@
 	<div class="flex flex-col">
 		<h2 class="font-semibold text-lg">Create Session</h2>
 		<p class="text-sm text-slate-500 mb-4">Create session on behalf of a student</p>
-		<Button href="/dash/sessions/create" class="self-start">Create Session</Button>
+		<Button href="{base}/dash/sessions/create" class="self-start">Create Session</Button>
 	</div>
 
 	<div class="flex flex-col">
@@ -34,7 +36,7 @@
 			Availability
 			<a
 				class="text-sm text-blue-500 hover:text-blue-600 transition font-semibold"
-				href="/dash/mentors/{data.mentor.id}/availability">Update availability &rarr;</a
+				href="{base}/dash/mentors/{data.mentor.id}/availability">Update availability &rarr;</a
 			>
 		</h2>
 		<p class="text-sm text-slate-500">
@@ -71,7 +73,8 @@
 				Allowed Session Types {#if roleOf(data.user) >= ROLE_STAFF}
 					<a
 						class="text-sm text-blue-500 hover:text-blue-600 transition font-semibold"
-						href="/dash/mentors/{data.mentor.id}/types/allowed_types">Update allowed types &rarr;</a
+						href="{base}/dash/mentors/{data.mentor.id}/types/allowed_types"
+						>Update allowed types &rarr;</a
 					>
 				{/if}
 			</h2>
@@ -92,7 +95,7 @@
 				Bookable By Students {#if roleOf(data.user) >= ROLE_STAFF}
 					<a
 						class="text-sm text-blue-500 hover:text-blue-600 transition font-semibold"
-						href="/dash/mentors/{data.mentor.id}/types/bookable_types"
+						href="{base}/dash/mentors/{data.mentor.id}/types/bookable_types"
 						>Update bookable types &rarr;</a
 					>
 				{/if}

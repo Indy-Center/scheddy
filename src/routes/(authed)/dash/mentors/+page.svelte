@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { base } from '$app/paths';
+
 	import type { PageData } from './$types';
 	import DataTable from '$lib/ui/DataTable.svelte';
 	import { mentorsCols } from './columns';
@@ -10,7 +12,7 @@
 
 <p class="ml-1">
 	Mentors and instructors are added automatically by their VATUSA role. You can also
-	<a class="text-blue-500 hover:text-blue-600 transition font-semibold" href="/dash/users"
+	<a class="text-blue-500 hover:text-blue-600 transition font-semibold" href="{base}/dash/users"
 		>override a user's role &rarr;</a
 	>
 </p>

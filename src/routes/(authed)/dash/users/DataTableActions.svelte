@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { base } from '$app/paths';
+
 	import Ellipsis from '@lucide/svelte/icons/ellipsis';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
@@ -33,7 +35,7 @@
 			</DropdownMenu.Item>
 			<DropdownMenu.Item>
 				{#snippet child({ props })}
-					<a href="/dash/users/set?id={id}&roleOverride={roleOverride}" {...props}> Edit </a>
+					<a href="{base}/dash/users/set?id={id}&roleOverride={roleOverride}" {...props}> Edit </a>
 				{/snippet}
 			</DropdownMenu.Item>
 			<DropdownMenu.Item>Remove</DropdownMenu.Item>

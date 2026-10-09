@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { base } from '$app/paths';
+
 	import { DateTime } from 'luxon';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
@@ -97,7 +99,7 @@
 			</Button>
 		</ButtonGroup>
 
-		<a class={cn(buttonVariants({ variant: 'default' }))} href="/dash/sessions/create">
+		<a class={cn(buttonVariants({ variant: 'default' }))} href="{base}/dash/sessions/create">
 			Create Session <Plus class="size-4" />
 		</a>
 	</div>

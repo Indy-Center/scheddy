@@ -1,3 +1,4 @@
+import { base } from '$app/paths';
 import { loadUserData, type SessionAndFriends } from '$lib/userInfo';
 import { roleOf } from '$lib';
 import { ROLE_MENTOR, ROLE_STAFF } from '$lib/utils';
@@ -34,7 +35,7 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 	const sessionAndFriends = sessionList[0] as unknown as SessionAndFriends;
 
 	if (roleOf(user) < ROLE_STAFF && !(user.id == sessionAndFriends.session.mentor)) {
-		redirect(307, '/schedule');
+		redirect(307, `${base}/schedule`);
 	}
 
 	const mentorsList = (
@@ -95,7 +96,7 @@ export const actions: Actions = {
 		const sessionAndFriends = sessionList[0] as unknown as SessionAndFriends;
 
 		if (roleOf(user) < ROLE_STAFF && !(user.id == sessionAndFriends.session.mentor)) {
-			redirect(307, '/schedule');
+			redirect(307, `${base}/schedule`);
 		}
 
 		const form = await superValidate(event, zod(transferSchema));

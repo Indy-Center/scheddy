@@ -9,6 +9,10 @@ const config = {
 
 	kit: {
 		adapter: adapter(),
+		paths: {
+			// Build-time. Set BASE_PATH (e.g. /scheddy) to serve under a path prefix.
+			base: process.env.BASE_PATH ?? ''
+		},
 		version: {
 			name: process.env.npm_package_version
 		}

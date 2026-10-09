@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { base } from '$app/paths';
+
 	import type { PageData } from './$types';
 	import { superForm } from 'sveltekit-superforms';
 	import UserSelector from '$lib/ui/UserSelector.svelte';
@@ -15,7 +17,7 @@
 	const form = superForm(data.form, {
 		async onUpdated({ form }) {
 			if (form.valid) {
-				await goto('/dash/users');
+				await goto(`${base}/dash/users`);
 				toast.success("The user's role has been updated.");
 			}
 		}

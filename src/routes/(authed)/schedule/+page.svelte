@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { base } from '$app/paths';
+
 	import type { PageData } from './$types';
 	import * as Card from '$lib/components/ui/card';
 	import * as Form from '$lib/components/ui/form';
@@ -166,7 +168,7 @@
 					<!-- Step 3: Submit button -->
 					<div class="flex flex-row gap-4">
 						{#if data.reschedule}
-							<Button href="/schedule/cancel/{data.oldId}" class="flex-1" variant="ghost"
+							<Button href="{base}/schedule/cancel/{data.oldId}" class="flex-1" variant="ghost"
 								>Cancel Session</Button
 							>
 						{/if}
@@ -190,14 +192,14 @@
 		</Card.Content>
 		<Card.Footer class="text-sm text-muted-foreground justify-center flex flex-col gap-2">
 			<div class="flex flex-row gap-4 text-primary font-semibold">
-				<a class="hover:underline underline-offset-4" href="/my_sessions">My Bookings</a>
+				<a class="hover:underline underline-offset-4" href="{base}/my_sessions">My Bookings</a>
 				{#if roleOf(data.user) >= ROLE_MENTOR}
-					<a class="hover:underline underline-offset-4" href="/dash/mentors/{data.user.id}"
+					<a class="hover:underline underline-offset-4" href="{base}/dash/mentors/{data.user.id}"
 						>My Schedule</a
 					>
 				{/if}
 				{#if roleOf(data.user) >= ROLE_STAFF}
-					<a class="hover:underline underline-offset-4" href="/dash">Administration</a>
+					<a class="hover:underline underline-offset-4" href="{base}/dash">Administration</a>
 				{/if}
 			</div>
 

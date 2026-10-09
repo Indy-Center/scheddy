@@ -1,3 +1,4 @@
+import { base } from '$app/paths';
 import { loadUserData } from '$lib/userInfo';
 import { roleOf } from '$lib';
 import { ROLE_MENTOR, ROLE_STAFF } from '$lib/utils';
@@ -22,7 +23,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 	const { user } = (await loadUserData(cookies))!;
 
 	if (roleOf(user) < ROLE_MENTOR) {
-		redirect(307, '/schedule');
+		redirect(307, `${base}/schedule`);
 	}
 
 	let sTypes: (typeof sessionTypes.$inferSelect)[];
@@ -134,7 +135,7 @@ export const actions: Actions = {
 		const { user } = (await loadUserData(event.cookies))!;
 
 		if (roleOf(user) < ROLE_MENTOR) {
-			redirect(307, '/schedule');
+			redirect(307, `${base}/schedule`);
 		}
 
 		const form = await superValidate(event, zod(createSchema));

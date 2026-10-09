@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { roleOf } from '$lib';
+	import { base } from '$app/paths';
 	import { DateTime } from 'luxon';
 	import type { Session } from './utils/utils';
 	import type { users } from '$lib/server/db/schema';
@@ -60,7 +61,7 @@
 		{@const hasAuth = session.session.mentor === user.id || roleOf(user) >= ROLE_STAFF}
 
 		<a
-			href={hasAuth ? `/dash/sessions/${session.session.id}` : undefined}
+			href={hasAuth ? `${base}/dash/sessions/${session.session.id}` : undefined}
 			class={cn(
 				'absolute rounded-lg text-xs overflow-hidden shadow-lg hover:brightness-90 hover:shadow-xl border-1 p-1',
 				hasAuth ? 'cursor-pointer' : 'cursor-default'
