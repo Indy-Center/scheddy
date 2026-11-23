@@ -1,11 +1,18 @@
 import type { PageServerLoad } from './$types';
 import { db } from '$lib/server/db';
-import { userTokens, users } from '$lib/server/db/schema';
-import { nanoid } from 'nanoid';
+import { users } from '$lib/server/db/schema';
 import { redirect } from '@sveltejs/kit';
+import { callbackUrl, consumeOAuthState, createSession } from '$lib/server/session';
 import { ROLE_DEVELOPER, ROLE_STAFF, ROLE_MENTOR, ROLE_STUDENT } from '$lib/utils';
 import { serverConfig } from '$lib/config/server';
 import { determineHighestRole } from '$lib/helpers/auth';
+import {
+	cidOf,
+	exchangeCode,
+	getUserinfo,
+	IdentityError,
+	revokeToken
+} from '$lib/server/identity';
 
 export const load: PageServerLoad = async ({ cookies, url, fetch }) => {
 	if (url.searchParams.has('error')) {
@@ -21,70 +28,48 @@ export const load: PageServerLoad = async ({ cookies, url, fetch }) => {
 		};
 	}
 
+	if (!consumeOAuthState(cookies, url.searchParams.get('state'))) {
+		return {
+			success: false,
+			error_code: 'invalid_state',
+			error_description: 'Your login attempt expired or was invalid. Please try logging in again.',
+			error_message: 'Your login attempt expired or was invalid. Please try logging in again.'
+		};
+	}
+
 	const code = url.searchParams.get('code');
 	if (!code) {
 		return {
 			success: false,
 			error_code: 'no_auth_code',
-			error_description: "No auth code was present in VATSIM's response.",
-			error_message: "No auth code was present in VATSIM's response."
+			error_description: "No auth code was present in identity's response.",
+			error_message: "No auth code was present in identity's response."
 		};
 	}
 
-	const request_body = new URLSearchParams();
-	request_body.set('grant_type', 'authorization_code');
-	request_body.set('client_id', serverConfig.auth.vatsim.client_id_public);
-	request_body.set('client_secret', serverConfig.auth.vatsim.client_secret);
-	request_body.set('redirect_uri', serverConfig.site.base_public + 'callback');
-	request_body.set('code', code);
-	request_body.set('scope', '');
-
-	const token_response = await fetch(`${serverConfig.auth.vatsim.base_public}/oauth/token`, {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/x-www-form-urlencoded'
-		},
-		body: request_body.toString()
-	});
-
-	const resp = await token_response.json();
-
-	if (!token_response.ok) {
+	let cid: number;
+	try {
+		const token = await exchangeCode(fetch, code, callbackUrl());
+		const userinfo = await getUserinfo(fetch, token);
+		cid = cidOf(userinfo);
+		await revokeToken(fetch, token);
+	} catch (e) {
+		if (!(e instanceof IdentityError)) console.error('identity login failed', e);
+		const { code, message } =
+			e instanceof IdentityError
+				? e
+				: new IdentityError('identity_unreachable', 'Could not reach Indy Center identity.');
 		return {
 			success: false,
-			error_code: resp.error,
-			error_description: resp.error_description,
-			error_message: resp.hint
+			error_code: code,
+			error_description: message,
+			error_message: message
 		};
 	}
 
-	const token = resp.access_token;
-	// we got an access token
-	// get the CID now
-
-	const user_data_resp = await fetch(`${serverConfig.auth.vatsim.base_public}/api/user`, {
-		headers: {
-			Accept: 'application/json',
-			Authorization: `Bearer ${token}`
-		}
-	});
-
-	if (!user_data_resp.ok) {
-		return {
-			success: false,
-			error_code: 'user_data_failed',
-			error_description: 'Failed to load user data from VATSIM.',
-			error_message: 'Failed to load user data from VATSIM.'
-		};
-	}
-
-	const user_data_str = await user_data_resp.text();
-	const user_data = JSON.parse(user_data_str);
-
-	let cid = user_data.data.cid;
 	// DEVELOPMENT: Overwrites the CID for the data request with one in the .env file
 	if (serverConfig.site.mode === 'dev') {
-		cid = serverConfig.site.dev_cid;
+		cid = Number.parseInt(serverConfig.site.dev_cid, 10);
 	}
 
 	// finally, load the division data from VATUSA
@@ -147,13 +132,7 @@ export const load: PageServerLoad = async ({ cookies, url, fetch }) => {
 			}
 		});
 
-	const utoken = nanoid();
-	await db.insert(userTokens).values({
-		id: utoken,
-		user: cid
-	});
-
-	cookies.set('scheddy_token', utoken, { path: '/', httpOnly: false });
+	await createSession(cookies, cid);
 
 	redirect(307, '/schedule');
 };

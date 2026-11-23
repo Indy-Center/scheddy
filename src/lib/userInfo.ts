@@ -2,6 +2,7 @@ import { type Cookies, redirect } from '@sveltejs/kit';
 import { sessions, users, userTokens, sessionTypes } from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
 import { eq } from 'drizzle-orm';
+import { SESSION_COOKIE, validateSession } from '$lib/server/session';
 
 export interface UserData {
 	user: typeof users.$inferSelect;
@@ -24,7 +25,7 @@ export async function loadUserData(
 	cookies: Cookies,
 	allowLoggedOut = false
 ): Promise<UserData | null> {
-	const token = cookies.get('scheddy_token');
+	const token = cookies.get(SESSION_COOKIE);
 	if (!token) {
 		return condFail(allowLoggedOut);
 	}
@@ -45,6 +46,9 @@ export async function loadUserData(
 		return condFail(allowLoggedOut);
 	}
 	if (!userAndToken.user) {
+		return condFail(allowLoggedOut);
+	}
+	if (!(await validateSession(cookies, userAndToken.userToken))) {
 		return condFail(allowLoggedOut);
 	}
 

@@ -1,4 +1,4 @@
-import { mysqlTable, text, int, boolean, varchar } from 'drizzle-orm/mysql-core';
+import { mysqlTable, text, int, boolean, varchar, bigint } from 'drizzle-orm/mysql-core';
 import { aliasedTable } from 'drizzle-orm';
 
 export const users = mysqlTable('user', {
@@ -22,7 +22,10 @@ export const userTokens = mysqlTable('userToken', {
 	id: varchar({ length: 21 }).primaryKey().notNull(),
 	user: int()
 		.references(() => users.id)
-		.notNull()
+		.notNull(),
+	// epoch milliseconds
+	createdAt: bigint({ mode: 'number' }).notNull(),
+	expiresAt: bigint({ mode: 'number' }).notNull()
 });
 
 export const sessionTypes = mysqlTable('sessionType', {
