@@ -4,7 +4,12 @@
 	import type { Snippet } from 'svelte';
 	import { page } from '$app/state';
 	import { version } from '$app/environment';
-	import { Header, Toaster, setColorScheme } from '@indy-center/centerline-svelte';
+	import {
+		Header,
+		INDY_CENTER_APPS,
+		Toaster,
+		setColorScheme
+	} from '@indy-center/centerline-svelte';
 
 	interface Props {
 		children: Snippet;
@@ -13,6 +18,10 @@
 	let { children, data }: Props = $props();
 
 	setColorScheme({ fallback: 'dark' });
+
+	// Scheddy is part of Training as far as members are concerned: the header
+	// names Training beside the logo and the Apps menu marks it as current.
+	const app = INDY_CENTER_APPS.find((a) => a.label === 'Training');
 </script>
 
 <svelte:head>
@@ -25,6 +34,7 @@
 	     so it's tinted here to match them; drop the class once they move to it. -->
 	<Header
 		class="bg-card/95! backdrop-blur-lg"
+		{app}
 		nav={data.nav}
 		current={page.url.pathname}
 		member={data.member}
