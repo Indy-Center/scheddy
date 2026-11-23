@@ -8,6 +8,7 @@
 	import type { Session } from '$lib/ui/cal/utils/utils';
 	import Events from '$lib/ui/cal/Events.svelte';
 	import TimeMarker from '$lib/ui/cal/TimeMarker.svelte';
+	import { PageHeader } from '@indy-center/centerline-svelte';
 
 	interface Props {
 		data: PageData;
@@ -36,7 +37,12 @@
 	};
 </script>
 
-<div class="flex flex-col w-full border-2 rounded-xl" style="max-height: calc(100vh - 5rem);">
+<PageHeader title="Facility calendar">Every upcoming session at the facility.</PageHeader>
+
+<div
+	class="flex w-full flex-col overflow-hidden rounded-lg border bg-card"
+	style="max-height: calc(100vh - 8rem);"
+>
 	<CalendarHeader
 		{selectedDay}
 		{selectedWeekStart}
@@ -45,8 +51,8 @@
 		onViewChange={(newView: string) => (view = newView)}
 		onSelectedDayChange={(newDay: DateTime) => (selectedDay = newDay)}
 	/>
-	<div class="flex flex-col w-full rounded-b-xl overflow-hidden overflow-y-auto">
-		<DateHeader {selectedDay} {selectedWeekStart} {view} class="sticky top-0 z-50 bg-background" />
+	<div class="flex w-full flex-col overflow-y-auto">
+		<DateHeader {selectedDay} {selectedWeekStart} {view} class="sticky top-0 z-30 bg-card" />
 
 		<div class="grid grid-cols-29">
 			<TimeColumn />
@@ -70,7 +76,7 @@
 						{#if (view === 'week' && selectedWeekStart
 								.plus({ days: day })
 								.hasSame(now, 'day')) || (view === 'day' && selectedDay.hasSame(now, 'day'))}
-							<TimeMarker class="z-49" style="top: {findTimeMarkerPosition()}rem;" />
+							<TimeMarker class="z-20" style="top: {findTimeMarkerPosition()}rem;" />
 						{/if}
 						<Events
 							{backgroundByType}

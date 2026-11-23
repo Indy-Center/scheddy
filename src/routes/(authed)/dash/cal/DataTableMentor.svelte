@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import { Link } from '@indy-center/centerline-svelte';
 	import { roleOf } from '$lib';
 	import { ROLE_STAFF } from '$lib/utils';
 
@@ -12,7 +13,7 @@
 </script>
 
 {#if roleOf(page.data.user) >= ROLE_STAFF || id === page.data.user.id}
-	<a class="hover:underline underline-offset-4" href="/dash/mentors/{id}">{firstName} {lastName}</a>
+	<Link href="/dash/mentors/{id}">{firstName} {lastName}</Link>
 {:else}
 	{firstName} {lastName}
 {/if}

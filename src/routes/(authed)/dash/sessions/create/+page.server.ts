@@ -22,7 +22,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 	const { user } = (await loadUserData(cookies))!;
 
 	if (roleOf(user) < ROLE_MENTOR) {
-		redirect(307, '/schedule');
+		redirect(307, '/my_sessions');
 	}
 
 	let sTypes: (typeof sessionTypes.$inferSelect)[];
@@ -134,7 +134,7 @@ export const actions: Actions = {
 		const { user } = (await loadUserData(event.cookies))!;
 
 		if (roleOf(user) < ROLE_MENTOR) {
-			redirect(307, '/schedule');
+			redirect(307, '/my_sessions');
 		}
 
 		const form = await superValidate(event, zod(createSchema));

@@ -12,7 +12,7 @@ import { deleteSchema } from './deleteSchema';
 export const load: PageServerLoad = async ({ cookies, params }) => {
 	const { user } = (await loadUserData(cookies))!;
 	if (roleOf(user) < ROLE_STAFF) {
-		redirect(307, '/schedule');
+		redirect(307, '/my_sessions');
 	}
 
 	const data = (await db.select().from(sessionTypes).where(eq(sessionTypes.id, params.typeId)))[0];
@@ -34,7 +34,7 @@ export const actions: Actions = {
 		const form = await superValidate(event, zod(deleteSchema));
 		const { user } = (await loadUserData(event.cookies))!;
 		if (roleOf(user) < ROLE_STAFF) {
-			redirect(307, '/schedule');
+			redirect(307, '/my_sessions');
 		}
 		if (!form.valid) {
 			return fail(400, { form });

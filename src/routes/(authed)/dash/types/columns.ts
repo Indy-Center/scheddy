@@ -1,6 +1,5 @@
 import type { ColumnDef } from '@tanstack/table-core';
-import { renderComponent } from '$lib/components/ui/data-table';
-import DataTableAddButton from './DataTableAddButton.svelte';
+import { renderComponent } from '$lib/ui/data-table';
 import DataTableActions from './DataTableActions.svelte';
 import { ratingIdDisplay } from '$lib/utils';
 
@@ -47,9 +46,7 @@ export const stColumns: ColumnDef<TSType>[] = [
 	},
 	{
 		id: 'actions',
-		header: () => {
-			return renderComponent(DataTableAddButton, {});
-		},
+		header: () => '',
 		cell: ({ row }) => {
 			return renderComponent(DataTableActions, { id: row.original.id });
 		}

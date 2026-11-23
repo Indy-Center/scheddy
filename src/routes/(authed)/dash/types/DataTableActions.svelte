@@ -1,45 +1,21 @@
 <script lang="ts">
-	import Ellipsis from '@lucide/svelte/icons/ellipsis';
-	import { Button } from '$lib/components/ui/button/index.js';
-	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
-	import { toast } from 'svelte-sonner';
+	import { DropdownMenu, DropdownMenuItem, toast } from '@indy-center/centerline-svelte';
 
 	interface Props {
 		id: string;
 	}
 	let { id }: Props = $props();
+
+	async function copyId() {
+		await navigator.clipboard.writeText(id);
+		toast('success', 'Copied the session type ID.');
+	}
 </script>
 
-<DropdownMenu.Root>
-	<DropdownMenu.Trigger>
-		{#snippet child({ props })}
-			<Button {...props} variant="ghost" size="icon" class="relative size-8 p-0 float-right">
-				<span class="sr-only">Open menu</span>
-				<Ellipsis />
-			</Button>
-		{/snippet}
-	</DropdownMenu.Trigger>
-	<DropdownMenu.Content>
-		<DropdownMenu.Group>
-			<DropdownMenu.GroupHeading>Actions</DropdownMenu.GroupHeading>
-			<DropdownMenu.Item
-				onclick={() => {
-					navigator.clipboard.writeText(id);
-					toast.success('Copied ID to clipboard!');
-				}}
-			>
-				Copy ID
-			</DropdownMenu.Item>
-			<DropdownMenu.Item>
-				{#snippet child({ props })}
-					<a href="/dash/types/edit/{id}" {...props}> Edit </a>
-				{/snippet}
-			</DropdownMenu.Item>
-			<DropdownMenu.Item>
-				{#snippet child({ props })}
-					<a href="/dash/types/delete/{id}" {...props}> Remove </a>
-				{/snippet}
-			</DropdownMenu.Item>
-		</DropdownMenu.Group>
-	</DropdownMenu.Content>
-</DropdownMenu.Root>
+<div class="flex justify-end">
+	<DropdownMenu label="Actions for this session type" text="Actions">
+		<DropdownMenuItem href="/dash/types/edit/{id}">Edit</DropdownMenuItem>
+		<DropdownMenuItem href="/dash/types/delete/{id}">Remove</DropdownMenuItem>
+		<DropdownMenuItem onclick={copyId}>Copy ID</DropdownMenuItem>
+	</DropdownMenu>
+</div>

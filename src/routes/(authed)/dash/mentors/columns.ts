@@ -1,5 +1,5 @@
 import type { ColumnDef } from '@tanstack/table-core';
-import { renderComponent } from '$lib/components/ui/data-table';
+import { renderComponent } from '$lib/ui/data-table';
 import DataTableActions from './DataTableActions.svelte';
 import DataTableNameDisplay from './DataTableNameDisplay.svelte';
 

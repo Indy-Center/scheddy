@@ -1,33 +1,30 @@
 <script lang="ts">
 	import type { Infer, SuperForm } from 'sveltekit-superforms';
+	import { Heading, Text } from '@indy-center/centerline-svelte';
 	import type { AvailSchema } from './availSchema';
-	import WeekdayAvailabiltyControl from './WeekdayAvailabiltyControl.svelte';
+	import DayEditor from './DayEditor.svelte';
 
 	interface Props {
 		form: SuperForm<Infer<AvailSchema>>;
 	}
-
-	let days = [
-		{ id: 'sunday', name: 'Sunday' },
-		{ id: 'monday', name: 'Monday' },
-		{ id: 'tuesday', name: 'Tuesday' },
-		{ id: 'wednesday', name: 'Wednesday' },
-		{ id: 'thursday', name: 'Thursday' },
-		{ id: 'friday', name: 'Friday' },
-		{ id: 'saturday', name: 'Saturday' }
-	];
-
 	let { form }: Props = $props();
+	const { form: formData, errors } = form;
+
+	const days = [
+		['sunday', 'Sunday'],
+		['monday', 'Monday'],
+		['tuesday', 'Tuesday'],
+		['wednesday', 'Wednesday'],
+		['thursday', 'Thursday'],
+		['friday', 'Friday'],
+		['saturday', 'Saturday']
+	] as const;
 </script>
 
-<div class="flex-1 flex flex-col gap-2">
-	<h2 class="text-center font-bold text-lg">Weekday Availability</h2>
-	<p class="text-sm text-muted-foreground">
-		Set your general availability to be repeated every week. Check the box to mark that you are
-		available for that day, and add specific hours of availability. If a box is unchecked, you are
-		NOT available on that day.
-	</p>
-	{#each days as day (day.id)}
-		<WeekdayAvailabiltyControl {form} dayId={day.id} dayName={day.name} />
+<section class="flex flex-1 flex-col gap-3">
+	<Heading level={2}>Every week</Heading>
+	<Text size="small">The hours you're available each week. Days switched off are unavailable.</Text>
+	{#each days as [id, name] (id)}
+		<DayEditor label={name} bind:day={$formData[id]} errors={$errors[id]} />
 	{/each}
-</div>
+</section>

@@ -15,7 +15,7 @@ import { determineHighestRole } from '$lib/helpers/auth';
 export const load: PageServerLoad = async ({ cookies }) => {
 	const { user } = (await loadUserData(cookies))!;
 	if (roleOf(user) < ROLE_STAFF) {
-		redirect(307, '/schedule');
+		redirect(307, '/my_sessions');
 	}
 
 	const form = await superValidate(zod(syncSchema));
@@ -42,7 +42,7 @@ export const actions: Actions = {
 	default: async (event) => {
 		const { user } = (await loadUserData(event.cookies))!;
 		if (roleOf(user) < ROLE_STAFF) {
-			redirect(307, '/schedule');
+			redirect(307, '/my_sessions');
 		}
 
 		const form = await superValidate(event, zod(syncSchema));

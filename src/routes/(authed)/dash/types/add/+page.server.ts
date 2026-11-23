@@ -12,7 +12,7 @@ import { nanoid } from 'nanoid';
 export const load: PageServerLoad = async ({ cookies }) => {
 	const { user } = (await loadUserData(cookies))!;
 	if (roleOf(user) < ROLE_STAFF) {
-		redirect(307, '/schedule');
+		redirect(307, '/my_sessions');
 	}
 	const form = await superValidate(zod(typeSchema));
 
@@ -21,7 +21,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		breadcrumbs: [
 			{ title: 'Dashboard', url: '/dash' },
 			{ title: 'Session Types', url: '/dash/types' },
-			{ title: 'New' }
+			{ title: 'Add a Session Type' }
 		]
 	};
 };
@@ -30,7 +30,7 @@ export const actions: Actions = {
 		const form = await superValidate(event, zod(typeSchema));
 		const { user } = (await loadUserData(event.cookies))!;
 		if (roleOf(user) < ROLE_STAFF) {
-			redirect(307, '/schedule');
+			redirect(307, '/my_sessions');
 		}
 		if (!form.valid) {
 			return fail(400, { form });

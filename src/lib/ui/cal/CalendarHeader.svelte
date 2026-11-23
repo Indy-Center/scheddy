@@ -1,13 +1,7 @@
 <script lang="ts">
 	import { DateTime } from 'luxon';
-	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
-	import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
-	import Button from '$lib/components/ui/button/button.svelte';
-	import ButtonGroup from '$lib/components/ui/button-group/button-group.svelte';
-	import ChevronLeft from '@lucide/svelte/icons/chevron-left';
-	import ChevronRight from '@lucide/svelte/icons/chevron-right';
-	import Plus from '@lucide/svelte/icons/plus';
-	import { buttonVariants } from '$lib/components/ui/button/button.svelte';
+	import { Button, Heading, Icon } from '@indy-center/centerline-svelte';
+	import { mdiChevronLeft, mdiChevronRight, mdiPlus } from '@mdi/js';
 	import { cn } from '$lib/utils';
 	import type { HTMLAttributes } from 'svelte/elements';
 
@@ -31,74 +25,80 @@
 		...restProps
 	}: Props = $props();
 
-	const previous = () => {
-		const newDay =
-			view === 'week' ? selectedDay.minus({ days: 7 }) : selectedDay.minus({ days: 1 });
-		onSelectedDayChange?.(newDay);
-	};
-
-	const next = () => {
-		const newDay = view === 'week' ? selectedDay.plus({ days: 7 }) : selectedDay.plus({ days: 1 });
-		onSelectedDayChange?.(newDay);
-	};
-
-	const today = () => {
-		onSelectedDayChange?.(DateTime.now());
-	};
-
-	const changeView = (newView: string) => {
-		onViewChange?.(newView);
-	};
+	const step = $derived(view === 'week' ? { days: 7 } : { days: 1 });
 </script>
 
 <div
-	class={cn('flex w-full items-center justify-between border-b px-6 py-4', className)}
+	class={cn(
+		'flex w-full flex-wrap items-center justify-between gap-3 border-b px-4 py-3',
+		className
+	)}
 	{...restProps}
 >
-	<div class="flex flex-col">
-		<h1 class="text-base font-semibold">
-			{#if view === 'week'}
-				{selectedWeekStart.monthShort}
-				{selectedWeekStart.day} - {selectedWeekEnd.monthShort}
-				{selectedWeekEnd.day},
-				{selectedWeekEnd.year}
-			{:else}
-				{selectedDay.monthLong} {selectedDay.day}, {selectedDay.year}
-			{/if}
-		</h1>
-	</div>
+	<Heading level={2} look={4}>
+		{#if view === 'week'}
+			{selectedWeekStart.monthShort}
+			{selectedWeekStart.day} – {selectedWeekEnd.monthShort}
+			{selectedWeekEnd.day}, {selectedWeekEnd.year}
+		{:else}
+			{selectedDay.monthLong} {selectedDay.day}, {selectedDay.year}
+		{/if}
+	</Heading>
 
-	<div class="flex items-center gap-5">
-		<DropdownMenu.Root>
-			<DropdownMenu.Trigger>
-				<Button variant="outline" class="hover:cursor-pointer">
-					<span>{view === 'day' ? 'Day' : 'Week'}</span>
-					<ChevronsUpDown class="size-4 mt-0.5 ml-1 opacity-50" />
-				</Button>
-			</DropdownMenu.Trigger>
-
-			<DropdownMenu.Content align="center">
-				<DropdownMenu.Item class="cursor-pointer" onclick={() => changeView('day')}>
-					Day
-				</DropdownMenu.Item>
-				<DropdownMenu.Item class="cursor-pointer" onclick={() => changeView('week')}>
-					Week
-				</DropdownMenu.Item>
-			</DropdownMenu.Content>
-		</DropdownMenu.Root>
-
-		<ButtonGroup>
-			<Button class="hover:cursor-pointer" variant="outline" onclick={previous}>
-				<ChevronLeft />
+	<div class="flex flex-wrap items-center gap-3">
+		<div class="flex" role="group" aria-label="View">
+			<Button
+				variant="secondary"
+				size="sm"
+				class="rounded-r-none"
+				pressed={view === 'day'}
+				onclick={() => onViewChange('day')}
+			>
+				Day
 			</Button>
-			<Button class="hover:cursor-pointer" variant="outline" onclick={today}>Today</Button>
-			<Button class="hover:cursor-pointer" variant="outline" onclick={next}>
-				<ChevronRight />
+			<Button
+				variant="secondary"
+				size="sm"
+				class="-ml-px rounded-l-none"
+				pressed={view === 'week'}
+				onclick={() => onViewChange('week')}
+			>
+				Week
 			</Button>
-		</ButtonGroup>
+		</div>
 
-		<a class={cn(buttonVariants({ variant: 'default' }))} href="/dash/sessions/create">
-			Create Session <Plus class="size-4" />
-		</a>
+		<div class="flex" role="group" aria-label="Move through the calendar">
+			<Button
+				variant="secondary"
+				size="sm"
+				class="rounded-r-none"
+				aria-label={view === 'week' ? 'Previous week' : 'Previous day'}
+				onclick={() => onSelectedDayChange(selectedDay.minus(step))}
+			>
+				<Icon path={mdiChevronLeft} />
+			</Button>
+			<Button
+				variant="secondary"
+				size="sm"
+				class="-ml-px rounded-none"
+				onclick={() => onSelectedDayChange(DateTime.now())}
+			>
+				Today
+			</Button>
+			<Button
+				variant="secondary"
+				size="sm"
+				class="-ml-px rounded-l-none"
+				aria-label={view === 'week' ? 'Next week' : 'Next day'}
+				onclick={() => onSelectedDayChange(selectedDay.plus(step))}
+			>
+				<Icon path={mdiChevronRight} />
+			</Button>
+		</div>
+
+		<Button href="/dash/sessions/create" size="sm">
+			<Icon path={mdiPlus} />
+			Create session
+		</Button>
 	</div>
 </div>

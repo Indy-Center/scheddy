@@ -1,11 +1,9 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import { superForm } from 'sveltekit-superforms';
-	import UserSelector from '$lib/ui/UserSelector.svelte';
-	import * as Form from '$lib/components/ui/form';
-	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import { goto } from '$app/navigation';
-	import { toast } from 'svelte-sonner';
+	import { Button, Card, PageHeader, toast } from '@indy-center/centerline-svelte';
+	import UserSelector from '$lib/ui/UserSelector.svelte';
 
 	interface Props {
 		data: PageData;
@@ -16,23 +14,26 @@
 		async onUpdated({ form }) {
 			if (form.valid) {
 				await goto('/dash/users');
-				toast.success("The user's role has been updated.");
+				toast('success', "The member's role is up to date.");
 			}
 		}
 	});
-
-	const { form: formData, enhance, delayed } = form;
+	const { form: formData, errors, enhance, delayed } = form;
 </script>
 
-<i class="ml-1">Use this control to re-sync a user's role from VATUSA.</i>
+<PageHeader title="Resync a user">Fetch a member's role from VATUSA again.</PageHeader>
 
-<form class="max-w-md" method="POST" use:enhance>
-	<UserSelector label="User" {form} usersMap={data.usersMap} name="id" bind:value={$formData.id} />
-	<Form.Button>
-		{#if $delayed}
-			<LoaderCircleIcon class="size-4 animate-spin" />
-		{:else}
-			Sync
-		{/if}
-	</Form.Button>
-</form>
+<Card class="max-w-xl">
+	<form method="POST" use:enhance class="flex flex-col gap-5">
+		<UserSelector
+			label="Member"
+			usersMap={data.usersMap}
+			name="id"
+			bind:value={$formData.id}
+			error={$errors.id?.[0]}
+		/>
+		<div>
+			<Button type="submit" busy={$delayed} busyLabel="Syncing">Resync</Button>
+		</div>
+	</form>
+</Card>

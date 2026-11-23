@@ -24,7 +24,7 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 	const sessionTime = DateTime.fromISO(session.start);
 	const canCancel = sessionTime.diffNow().as('hours') > 24;
 
-	return { user, role: roleString(roleOf(user)), canCancel };
+	return { title: 'Cancel a Session', user, role: roleString(roleOf(user)), canCancel };
 };
 
 export const actions: Actions = {

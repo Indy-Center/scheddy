@@ -33,6 +33,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 	});
 
 	return {
+		title: 'My Sessions',
 		user,
 		upcomingSessions,
 		role: roleString(roleOf(user))
