@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { base } from '$app/paths';
-
 	import type { PageData } from './$types';
 	import { DateTime, Interval } from 'luxon';
 	import { goto } from '$app/navigation';
@@ -35,7 +33,7 @@
 	const form = superForm(data.form, {
 		async onUpdated({ form }) {
 			if (form.valid) {
-				await goto(`${base}/dash/cal`);
+				await goto(`/dash/cal`);
 				toast.success('Session created!');
 			}
 		}

@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { base } from '$app/paths';
-
 	import * as Sidebar from '$lib/components/ui/sidebar';
 	import { version } from '$app/environment';
 	import TowerControl from '@lucide/svelte/icons/tower-control';
@@ -11,7 +9,7 @@
 	<Sidebar.MenuItem>
 		<Sidebar.MenuButton size="lg">
 			{#snippet child({ props })}
-				<a href="{base}/dash" {...props}>
+				<a href="/dash" {...props}>
 					<div
 						class="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg"
 					>

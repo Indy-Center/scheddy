@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { base } from '$app/paths';
-
 	import * as Card from '$lib/components/ui/card';
 	import type { PageData } from './$types';
 	import { goto, invalidateAll } from '$app/navigation';
@@ -22,7 +20,7 @@
 			}
 		});
 		await invalidateAll();
-		await goto(`${base}/my_sessions`);
+		await goto('/my_sessions');
 		toast.success('Session cancelled successfully!');
 	}
 </script>
@@ -41,7 +39,7 @@
 			{#if data.canCancel}
 				<h2>Are you sure?</h2>
 				<div class="flex flex-row gap-4 mt-4">
-					<Button href="{base}/my_sessions" class="flex-1" variant="outline">Nevermind</Button>
+					<Button href="/my_sessions" class="flex-1" variant="outline">Nevermind</Button>
 					<Button onclick={del} class="flex-1" variant="destructive">Yes, I'm sure</Button>
 				</div>
 			{:else}

@@ -1,4 +1,3 @@
-import { base } from '$app/paths';
 import type { PageServerLoad } from './$types';
 import { loadUserData } from '$lib/userInfo';
 import { roleOf } from '$lib';
@@ -12,7 +11,7 @@ import { eq, or } from 'drizzle-orm';
 export const load: PageServerLoad = async ({ cookies }) => {
 	const { user } = (await loadUserData(cookies))!;
 	if (roleOf(user) < ROLE_MENTOR) {
-		redirect(307, `${base}/schedule`);
+		redirect(307, '/schedule');
 	}
 
 	const allSessions = await db.select().from(sessions).where(eq(sessions.cancelled, false));

@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { base } from '$app/paths';
-
 	import type { PageData } from './$types';
 	import { Button } from '$lib/components/ui/button';
 
@@ -16,5 +14,5 @@
 {:else}
 	<h1 class="font-bold text-2xl text-center">Something went wrong :(</h1>
 	<p class="text-center">{data.error_message} (error code: {data.error_code})</p>
-	<Button href="{base}/">Try again</Button>
+	<Button href="/">Try again</Button>
 {/if}

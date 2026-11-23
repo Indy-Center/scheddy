@@ -1,4 +1,3 @@
-import { base } from '$app/paths';
 import { type Cookies, redirect } from '@sveltejs/kit';
 import { sessions, users, userTokens, sessionTypes } from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
@@ -19,7 +18,7 @@ export interface SessionAndFriends {
 
 function condFail(a: boolean): null {
 	if (a) return null;
-	redirect(307, `${base}/`);
+	redirect(307, '/');
 }
 
 export async function loadUserData(

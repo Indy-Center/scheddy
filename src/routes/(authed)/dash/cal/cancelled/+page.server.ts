@@ -1,4 +1,3 @@
-import { base } from '$app/paths';
 import { loadUserData } from '$lib/userInfo';
 import { roleOf } from '$lib';
 import { ROLE_MENTOR, ROLE_STAFF } from '$lib/utils';
@@ -12,7 +11,7 @@ import { DateTime } from 'luxon';
 export const load: PageServerLoad = async ({ cookies }) => {
 	const { user } = (await loadUserData(cookies))!;
 	if (roleOf(user) < ROLE_MENTOR) {
-		redirect(307, `${base}/schedule`);
+		redirect(307, '/schedule');
 	}
 
 	const validTypes = await db.select().from(sessionTypes);

@@ -1,4 +1,3 @@
-import { base } from '$app/paths';
 import { roleOf } from '$lib';
 import { loadUserData } from '$lib/userInfo';
 import { ROLE_STAFF } from '$lib/utils';
@@ -13,7 +12,7 @@ import { nanoid } from 'nanoid';
 export const load: PageServerLoad = async ({ cookies }) => {
 	const { user } = (await loadUserData(cookies))!;
 	if (roleOf(user) < ROLE_STAFF) {
-		redirect(307, `${base}/schedule`);
+		redirect(307, '/schedule');
 	}
 	const form = await superValidate(zod(typeSchema));
 
@@ -31,7 +30,7 @@ export const actions: Actions = {
 		const form = await superValidate(event, zod(typeSchema));
 		const { user } = (await loadUserData(event.cookies))!;
 		if (roleOf(user) < ROLE_STAFF) {
-			redirect(307, `${base}/schedule`);
+			redirect(307, '/schedule');
 		}
 		if (!form.valid) {
 			return fail(400, { form });

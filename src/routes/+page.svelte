@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { base } from '$app/paths';
-
 	import { version } from '$app/environment';
 	import HeartIcon from '@lucide/svelte/icons/heart';
 	import * as Card from '$lib/components/ui/card';
@@ -14,7 +12,7 @@
 			<Card.Title>{clientConfig.facility.name_public} - Scheddy</Card.Title>
 		</Card.Header>
 		<Card.Content>
-			<Button href="{base}/login" data-sveltekit-reload>Login with VATSIM</Button>
+			<Button href="/login" data-sveltekit-reload>Login with VATSIM</Button>
 		</Card.Content>
 		<Card.Footer class="text-sm text-muted-foreground justify-center">
 			<a

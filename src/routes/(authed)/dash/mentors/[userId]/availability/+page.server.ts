@@ -1,4 +1,3 @@
-import { base } from '$app/paths';
 import { loadUserData } from '$lib/userInfo';
 import { roleOf } from '$lib';
 import { ROLE_STAFF } from '$lib/utils';
@@ -16,7 +15,7 @@ import { getTimeZones } from '@vvo/tzdb';
 export const load: PageServerLoad = async ({ cookies, params }) => {
 	const { user } = (await loadUserData(cookies))!;
 	if (roleOf(user) < ROLE_STAFF && user.id != params.userId) {
-		redirect(307, `${base}/schedule`);
+		redirect(307, '/schedule');
 	}
 
 	const mentor = await db
@@ -25,7 +24,7 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 		.where(eq(users.id, Number.parseInt(params.userId!)));
 
 	if (!mentor || mentor.length === 0) {
-		redirect(307, `${base}/dash`);
+		redirect(307, '/dash');
 	}
 
 	const availability: MentorAvailability | null = mentor[0].mentorAvailability

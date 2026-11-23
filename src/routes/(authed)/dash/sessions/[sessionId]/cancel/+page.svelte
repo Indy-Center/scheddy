@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { base } from '$app/paths';
-
 	import type { PageData } from './$types';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { Button } from '$lib/components/ui/button';
@@ -27,7 +25,7 @@
 			},
 			body: udata.toString()
 		});
-		await goto(`${base}/dash/mentors/${data.sessionInfo.mentor.id}`);
+		await goto(`/dash/mentors/${data.sessionInfo.mentor.id}`);
 		toast.success('Session cancelled successfully!');
 		await invalidateAll();
 	}
@@ -42,7 +40,7 @@
 <div class="flex flex-row flex-wrap gap-2">
 	<Button
 		onclick={() => {
-			goto(`${base}/dash/sessions/${data.sessionInfo.session.id}`);
+			goto(`/dash/sessions/${data.sessionInfo.session.id}`);
 		}}
 		variant="outline">Nevermind</Button
 	>

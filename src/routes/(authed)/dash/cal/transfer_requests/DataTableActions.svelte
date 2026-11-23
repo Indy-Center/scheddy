@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { base } from '$app/paths';
-
 	import Ellipsis from '@lucide/svelte/icons/ellipsis';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
@@ -35,7 +33,7 @@
 				<DropdownMenu.Separator />
 				<DropdownMenu.Item>
 					{#snippet child({ props })}
-						<a href="{base}/dash/sessions/{id}" {...props}> Accept/Decline </a>
+						<a href="/dash/sessions/{id}" {...props}> Accept/Decline </a>
 					{/snippet}
 				</DropdownMenu.Item>
 			{/if}

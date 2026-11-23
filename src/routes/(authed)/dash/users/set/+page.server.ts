@@ -1,4 +1,3 @@
-import { base } from '$app/paths';
 import type { PageServerLoad, Actions } from './$types';
 import { loadUserData } from '$lib/userInfo';
 import { users } from '$lib/server/db/schema';
@@ -14,7 +13,7 @@ import { setSchema } from './setSchema';
 export const load: PageServerLoad = async ({ cookies, url }) => {
 	const { user } = (await loadUserData(cookies))!;
 	if (roleOf(user) < ROLE_STAFF) {
-		redirect(307, `${base}/schedule`);
+		redirect(307, '/schedule');
 	}
 
 	const data = {};
@@ -49,7 +48,7 @@ export const actions: Actions = {
 	default: async (event) => {
 		const { user } = (await loadUserData(event.cookies))!;
 		if (roleOf(user) < ROLE_STAFF) {
-			redirect(307, `${base}/schedule`);
+			redirect(307, '/schedule');
 		}
 
 		const form = await superValidate(event, zod(setSchema));

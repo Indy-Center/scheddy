@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { base } from '$app/paths';
-
 	import type { PageData } from './$types';
 	import DataTable from '$lib/ui/DataTable.svelte';
 	import { columns } from './columns';
@@ -13,10 +11,7 @@
 
 <div class="flex flex-col gap-4 p-4">
 	<h3 class="text-md">
-		<a
-			class="text-sm text-blue-500 hover:text-blue-600 transition font-semibold"
-			href="{base}/schedule"
-		>
+		<a class="text-sm text-blue-500 hover:text-blue-600 transition font-semibold" href="/schedule">
 			&larr; Back to Scheduling
 		</a>
 	</h3>
