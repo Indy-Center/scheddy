@@ -13,7 +13,7 @@ import { setSchema } from './setSchema';
 export const load: PageServerLoad = async ({ cookies, url }) => {
 	const { user } = (await loadUserData(cookies))!;
 	if (roleOf(user) < ROLE_STAFF) {
-		redirect(307, '/schedule');
+		redirect(307, '/my_sessions');
 	}
 
 	const data = {};
@@ -48,7 +48,7 @@ export const actions: Actions = {
 	default: async (event) => {
 		const { user } = (await loadUserData(event.cookies))!;
 		if (roleOf(user) < ROLE_STAFF) {
-			redirect(307, '/schedule');
+			redirect(307, '/my_sessions');
 		}
 
 		const form = await superValidate(event, zod(setSchema));

@@ -25,7 +25,7 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 	const sessionAndFriends = sessionList[0] as unknown as SessionAndFriends;
 
 	if (roleOf(user) < ROLE_STAFF && !(user.id == sessionAndFriends.session.mentor)) {
-		redirect(307, '/schedule');
+		redirect(307, '/my_sessions');
 	}
 
 	return {
@@ -52,7 +52,7 @@ export const actions: Actions = {
 		const sessionAndFriends = sessionList[0] as unknown as SessionAndFriends;
 
 		if (roleOf(user) < ROLE_STAFF && !(user.id == sessionAndFriends.session.mentor)) {
-			redirect(307, '/schedule');
+			redirect(307, '/my_sessions');
 		}
 
 		const reason = (await request.formData()).get('reason');

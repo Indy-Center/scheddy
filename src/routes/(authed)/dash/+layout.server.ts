@@ -7,7 +7,7 @@ import { ROLE_MENTOR, roleString } from '$lib/utils';
 export const load: LayoutServerLoad = async ({ cookies }) => {
 	const { user } = (await loadUserData(cookies))!;
 	if (roleOf(user) < ROLE_MENTOR) {
-		redirect(307, '/schedule');
+		redirect(307, '/my_sessions');
 	}
 
 	return {

@@ -1,51 +1,46 @@
 <script lang="ts">
-	import Ellipsis from '@lucide/svelte/icons/ellipsis';
-	import { Button } from '$lib/components/ui/button/index.js';
-	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
-	import { toast } from 'svelte-sonner';
+	import {
+		DropdownMenu,
+		DropdownMenuItem,
+		confirmAction,
+		toast
+	} from '@indy-center/centerline-svelte';
 	import { invalidateAll } from '$app/navigation';
 
 	interface Props {
-		id: string;
+		id: string | number;
 	}
 	let { id }: Props = $props();
 
-	async function remove() {
-		let data = new URLSearchParams();
-		data.set('id', id);
-		await fetch('?/remove', {
-			method: 'POST',
-			body: data.toString(),
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded'
-			}
+	async function copyCid() {
+		await navigator.clipboard.writeText(String(id));
+		toast('success', 'Copied the CID.');
+	}
+
+	async function unblock() {
+		const sure = await confirmAction({
+			title: 'Unblock this user?',
+			message: 'They will be able to book sessions again.',
+			confirmLabel: 'Unblock'
 		});
+		if (!sure) return;
+		const resp = await fetch('?/remove', {
+			method: 'POST',
+			body: new URLSearchParams({ id: String(id) }).toString(),
+			headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+		});
+		if (!resp.ok) {
+			toast('danger', "We couldn't unblock that user. Try again.");
+			return;
+		}
 		await invalidateAll();
-		toast.success('Removed block!');
+		toast('success', 'User unblocked.');
 	}
 </script>
 
-<DropdownMenu.Root>
-	<DropdownMenu.Trigger>
-		{#snippet child({ props })}
-			<Button {...props} variant="ghost" size="icon" class="relative size-8 p-0 float-right">
-				<span class="sr-only">Open menu</span>
-				<Ellipsis />
-			</Button>
-		{/snippet}
-	</DropdownMenu.Trigger>
-	<DropdownMenu.Content>
-		<DropdownMenu.Group>
-			<DropdownMenu.GroupHeading>Actions</DropdownMenu.GroupHeading>
-			<DropdownMenu.Item
-				onclick={() => {
-					navigator.clipboard.writeText(id);
-					toast.success('Copied CID to clipboard!');
-				}}
-			>
-				Copy CID
-			</DropdownMenu.Item>
-			<DropdownMenu.Item onclick={remove}>Remove</DropdownMenu.Item>
-		</DropdownMenu.Group>
-	</DropdownMenu.Content>
-</DropdownMenu.Root>
+<div class="flex justify-end">
+	<DropdownMenu label="Actions for this user" text="Actions">
+		<DropdownMenuItem onclick={unblock}>Unblock</DropdownMenuItem>
+		<DropdownMenuItem onclick={copyCid}>Copy CID</DropdownMenuItem>
+	</DropdownMenu>
+</div>

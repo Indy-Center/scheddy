@@ -2,25 +2,18 @@
 	import type { PageData } from './$types';
 	import { DateTime, Interval } from 'luxon';
 	import { goto } from '$app/navigation';
-	import CalendarIcon from '@lucide/svelte/icons/calendar';
-	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
-	import { buttonVariants } from '$lib/components/ui/button';
-	import { toast } from 'svelte-sonner';
 	import { superForm } from 'sveltekit-superforms';
-	import * as Popover from '$lib/components/ui/popover';
-	import * as Form from '$lib/components/ui/form';
-	import * as Dialog from '$lib/components/ui/dialog';
 	import {
-		DateFormatter,
-		type DateValue,
-		getLocalTimeZone,
-		parseDate,
-		today
-	} from '@internationalized/date';
-	import { cn, ROLE_STAFF } from '$lib/utils';
-	import { Calendar } from '$lib/components/ui/calendar';
-	import { Input } from '$lib/components/ui/input';
-	import * as Select from '$lib/components/ui/select';
+		Button,
+		Card,
+		ConfirmDialog,
+		Field,
+		Input,
+		PageHeader,
+		Select,
+		toast
+	} from '@indy-center/centerline-svelte';
+	import { ROLE_STAFF } from '$lib/utils';
 	import UserSelector from '$lib/ui/UserSelector.svelte';
 	import type { DayAvailability, MentorAvailability, Time } from '$lib/availability';
 	import { roleOf } from '$lib';
@@ -30,20 +23,30 @@
 	}
 	let { data }: Props = $props();
 
+	let confirmOpen = $state(false);
+	let confirmed = false;
+
 	const form = superForm(data.form, {
+		onSubmit({ cancel }) {
+			// A session that clashes with the mentor's sessions or availability
+			// is allowed, but only after they confirm it.
+			if (confirmed) {
+				confirmed = false; // The confirmed resubmit: let it go.
+				return;
+			}
+			if (!isMentorAvailable.status) {
+				cancel();
+				confirmOpen = true;
+			}
+		},
 		async onUpdated({ form }) {
 			if (form.valid) {
 				await goto(`/dash/cal`);
-				toast.success('Session created!');
+				toast('success', 'Session created.');
 			}
 		}
 	});
-	const { form: formData, enhance, delayed } = form;
-
-	const df = new DateFormatter('en-US', {
-		dateStyle: 'long'
-	});
-	let date = $state<DateValue | undefined>();
+	const { form: formData, errors, enhance, delayed } = form;
 
 	const availableInterval = (
 		mentorAvailability: DayAvailability,
@@ -119,6 +122,10 @@
 		'This session falls during an existing session this mentor has booked. Are you sure you want to create it?';
 
 	const isMentorAvailable = $derived.by(() => {
+		// Nothing to check until there's a session type to measure.
+		if (!data.typesMap[$formData.type]) {
+			return { status: true, message: '' };
+		}
 		const sessionDate = DateTime.fromISO($formData.date, {
 			zone: $formData.timezone
 		});
@@ -142,18 +149,12 @@
 		return { status: calculateMentorAvailability(start, end), message: notInAvailability };
 	});
 
-	$effect(() => {
-		date = $formData.date ? parseDate($formData.date) : undefined;
-	});
-
-	let dialogOpen = $state(false);
-
-	let datePlaceholder = $state<DateValue>(today(getLocalTimeZone()));
-
-	function pad() {
-		$formData.hour = String($formData.hour).padStart(2, '0');
-		$formData.minute = String($formData.minute).padStart(2, '0');
-	}
+	const pad = (n: number | string) => String(n).padStart(2, '0');
+	const nowThere = $derived(
+		$formData.timezone
+			? DateTime.now().setZone($formData.timezone).toLocaleString(DateTime.TIME_SIMPLE)
+			: ''
+	);
 
 	const usersMap = Object.fromEntries(
 		Object.entries(data.usersMap).map(([key, value]) => [Number(key), value.name])
@@ -162,195 +163,102 @@
 	const mentorMap = Object.fromEntries(
 		Object.entries(data.mentorsMap).map(([key, value]) => [Number(key), value.name])
 	);
+
+	function createAnyway() {
+		confirmed = true;
+		form.submit();
+	}
 </script>
 
-<h2 class="text-xl font-semibold">Create Session</h2>
+<PageHeader title="Create a session">Book a session on a student's behalf.</PageHeader>
 
-<form class="flex flex-col gap-2 max-w-sm" method="POST" use:enhance>
-	<div class="flex flex-row mb-4">
-		<p class="text-sm text-muted-foreground">
-			Enter all dates and times in {$formData.timezone}, where it's currently {DateTime.now()
-				.setZone($formData.timezone)
-				.toLocaleString(DateTime.TIME_SIMPLE)}
-		</p>
-		<Form.Field {form} name="timezone">
-			<Form.Control>
-				{#snippet children({ props })}
-					<Select.Root type="single" bind:value={$formData.timezone} name={props.name}>
-						<Select.Trigger {...props}>
-							{$formData.timezone ? $formData.timezone : 'Select a timezone'}
-						</Select.Trigger>
-						<Select.Content>
-							{#each data.timezones as timezone}
-								{@const label = timezone.name}
-								<Select.Item value={timezone.name} {label}>{label}</Select.Item>
-							{/each}
-						</Select.Content>
-					</Select.Root>
-				{/snippet}
-			</Form.Control>
-			<Form.FieldErrors />
-		</Form.Field>
-	</div>
-
-	<Form.Field {form} name="date" class="flex flex-col">
-		<Form.Control>
-			{#snippet children({ props })}
-				<Form.Label>Date</Form.Label>
-				<Popover.Root>
-					<Popover.Trigger
-						{...props}
-						class={cn(
-							buttonVariants({ variant: 'outline' }),
-							'justify-start pl-4 text-left font-normal',
-							!date && 'text-muted-foreground'
-						)}
-					>
-						{date ? df.format(date.toDate(getLocalTimeZone())) : 'Pick a date'}
-						<CalendarIcon class="ml-auto size-4 opacity-50" />
-					</Popover.Trigger>
-					<Popover.Content class="w-auto p-0" side="top">
-						<Calendar
-							type="single"
-							value={date as DateValue}
-							bind:placeholder={datePlaceholder}
-							calendarLabel="Date"
-							onValueChange={(v) => {
-								if (v) {
-									$formData.date = v.toString();
-								} else {
-									$formData.date = '';
-								}
-							}}
-						/>
-					</Popover.Content>
-				</Popover.Root>
-				<Form.FieldErrors />
-				<input hidden value={$formData.date} name={props.name} />
+<Card class="max-w-xl">
+	<form method="POST" use:enhance class="flex flex-col gap-5">
+		<Field
+			label="Time zone"
+			hint={nowThere
+				? `Enter the date and time in this zone, where it's ${nowThere} now.`
+				: undefined}
+			error={$errors.timezone?.[0]}
+			required
+		>
+			{#snippet children(control)}
+				<Select {...control} name="timezone" bind:value={$formData.timezone}>
+					{#each data.timezones as timezone (timezone.name)}
+						<option value={timezone.name}>{timezone.name}</option>
+					{/each}
+				</Select>
 			{/snippet}
-		</Form.Control>
-	</Form.Field>
+		</Field>
 
-	<div class="flex flex-row gap-2">
-		<Form.Field {form} name="hour">
-			<Form.Control>
-				{#snippet children({ props })}
-					<Form.Label>Time</Form.Label>
+		<div class="grid gap-5 sm:grid-cols-2">
+			<Field label="Date" error={$errors.date?.[0]} required>
+				{#snippet children(control)}
+					<Input {...control} type="date" name="date" bind:value={$formData.date} />
+				{/snippet}
+			</Field>
+			<Field label="Time" error={$errors.hour?.[0] ?? $errors.minute?.[0]} required>
+				{#snippet children(control)}
 					<Input
-						onblur={pad}
-						{...props}
-						type="number"
-						bind:value={$formData.hour}
-						min="0"
-						max="23"
+						{...control}
+						type="time"
+						bind:value={
+							() => `${pad($formData.hour)}:${pad($formData.minute)}`,
+							(v) => {
+								const [h, m] = String(v).split(':');
+								$formData.hour = Number(h);
+								$formData.minute = Number(m);
+							}
+						}
 					/>
 				{/snippet}
-			</Form.Control>
-			<Form.Description>Hours (HH)</Form.Description>
-			<Form.FieldErrors />
-		</Form.Field>
-		<span class="mt-8">:</span>
-		<Form.Field {form} name="minute">
-			<Form.Control>
-				{#snippet children({ props })}
-					<!-- required for spacing. it's cursed -->
-					<!-- eslint-disable-next-line no-irregular-whitespace -->
-					<Form.Label>​</Form.Label>
-					<Input
-						onblur={pad}
-						{...props}
-						type="number"
-						bind:value={$formData.minute}
-						min="0"
-						max="59"
-					/>
-				{/snippet}
-			</Form.Control>
-			<Form.Description>Minutes (MM)</Form.Description>
-			<Form.FieldErrors />
-		</Form.Field>
-	</div>
+			</Field>
+		</div>
+		<input type="hidden" name="hour" value={$formData.hour} />
+		<input type="hidden" name="minute" value={$formData.minute} />
 
-	<Form.Field {form} name="type">
-		<Form.Control>
-			{#snippet children({ props })}
-				<Form.Label>Type</Form.Label>
-				<Select.Root type="single" bind:value={$formData.type} name={props.name}>
-					<Select.Trigger {...props}>
-						{$formData.type
-							? `${data.typesMap[$formData.type].name} (${data.typesMap[$formData.type].length} minutes)`
-							: 'Select a session type'}
-					</Select.Trigger>
-					<Select.Content>
-						{#each Object.entries(data.typesMap) as [id, type] (id)}
-							<Select.Item value={id} label="{type.name} ({type.length} minutes)" />
-						{/each}
-					</Select.Content>
-				</Select.Root>
+		<Field label="Session type" error={$errors.type?.[0]} required>
+			{#snippet children(control)}
+				<Select {...control} name="type" bind:value={$formData.type}>
+					<option value="" disabled>Choose a session type</option>
+					{#each Object.entries(data.typesMap) as [id, type] (id)}
+						<option value={id}>{type.name} ({type.length} minutes)</option>
+					{/each}
+				</Select>
 			{/snippet}
-		</Form.Control>
-		<Form.FieldErrors />
-	</Form.Field>
+		</Field>
 
-	{#if roleOf(data.user) >= ROLE_STAFF}
+		{#if roleOf(data.user) >= ROLE_STAFF}
+			<UserSelector
+				label="Mentor"
+				usersMap={mentorMap}
+				name="mentor"
+				bind:value={$formData.mentor}
+				error={$errors.mentor?.[0]}
+			/>
+		{/if}
+
 		<UserSelector
-			label="Mentor"
-			{form}
-			usersMap={mentorMap}
-			name="mentor"
-			bind:value={$formData.mentor}
+			label="Student"
+			{usersMap}
+			name="student"
+			bind:value={$formData.student}
+			error={$errors.student?.[0]}
 		/>
-	{/if}
 
-	<UserSelector label="Student" {form} {usersMap} name="student" bind:value={$formData.student} />
+		<div>
+			<Button type="submit" disabled={!$formData.type} busy={$delayed} busyLabel="Creating">
+				Create session
+			</Button>
+		</div>
+	</form>
+</Card>
 
-	{#if isMentorAvailable.status}
-		<Form.Button>
-			{#if $delayed}
-				<LoaderCircleIcon class="animate-spin size-4" />
-			{:else}
-				Create Session
-			{/if}
-		</Form.Button>
-	{:else}
-		<Form.Button type="button" onclick={() => (dialogOpen = true)} hidden={$formData.type === ''}>
-			Create Session
-		</Form.Button>
-	{/if}
-
-	<Dialog.Root open={dialogOpen} onOpenChange={() => (dialogOpen = !dialogOpen)}>
-		<Dialog.Content>
-			<Dialog.Header>
-				<Dialog.Title>Schedule Conflict</Dialog.Title>
-				<Dialog.Description>
-					{isMentorAvailable.message}
-				</Dialog.Description>
-			</Dialog.Header>
-			<div class="flex flex-row gap-x-4">
-				<Form.Button
-					type="submit"
-					class="w-full"
-					onclick={() => {
-						dialogOpen = false;
-						form.submit();
-					}}
-				>
-					{#if $delayed}
-						<LoaderCircleIcon class="animate-spin size-4" />
-					{:else}
-						Create Session
-					{/if}
-				</Form.Button>
-				<Form.Button
-					class="w-full"
-					variant="destructive"
-					onclick={() => {
-						dialogOpen = false;
-					}}
-				>
-					Nevermind
-				</Form.Button>
-			</div>
-		</Dialog.Content>
-	</Dialog.Root>
-</form>
+<ConfirmDialog
+	bind:open={confirmOpen}
+	title="Schedule conflict"
+	confirmLabel="Create anyway"
+	onconfirm={createAnyway}
+>
+	<p>{isMentorAvailable.message}</p>
+</ConfirmDialog>

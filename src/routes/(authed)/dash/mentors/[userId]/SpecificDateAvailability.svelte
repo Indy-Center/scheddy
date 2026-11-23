@@ -1,24 +1,29 @@
 <script lang="ts">
-	import SpecificDateAvailabilityControl from './SpecificDateAvailabilityControl.svelte';
+	import { DescriptionList, EmptyState, Panel } from '@indy-center/centerline-svelte';
 	import type { MentorAvailability } from '$lib/availability';
+	import { availabilityText } from '$lib/ui/availabilityText';
 
 	interface Props {
 		data: MentorAvailability;
 	}
 	let { data }: Props = $props();
+
+	const dates = $derived(Object.keys(data.exceptions).sort());
 </script>
 
-<div class="flex-1 flex flex-col gap-2">
-	<h2 class="text-center font-bold text-lg">Specific Date Availability</h2>
-	<p class="text-sm text-muted-foreground">
-		Specific dates to override availability for a specific day.
-	</p>
-
-	{#each Object.keys(data.exceptions) as dateId}
-		<SpecificDateAvailabilityControl dayId={dateId} {data} />
+<Panel title="Specific dates" level={3} class="flex-1">
+	{#if dates.length}
+		<DescriptionList>
+			{#each dates as date (date)}
+				<div>
+					<dt>{date}</dt>
+					<dd class:text-muted-foreground={!data.exceptions[date].available}>
+						{availabilityText(data.exceptions[date])}
+					</dd>
+				</div>
+			{/each}
+		</DescriptionList>
 	{:else}
-		<div class="items-center flex flex-col">
-			<p class="text-sm text-muted-foreground">No overrides set.</p>
-		</div>
-	{/each}
-</div>
+		<EmptyState size="inline">No dates override the weekly hours.</EmptyState>
+	{/if}
+</Panel>

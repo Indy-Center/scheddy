@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { TMentor } from './columns';
-	import { Badge } from '$lib/components/ui/badge';
+	import { Badge } from '@indy-center/centerline-svelte';
 
 	interface Props {
 		user: TMentor;
@@ -8,14 +8,12 @@
 	let { user }: Props = $props();
 </script>
 
-<div>
+<div class="flex flex-wrap items-center gap-2">
 	<span>{user.firstName} {user.lastName}</span>
 	{#if user.isVisitor}
-		<Badge class="bg-yellow-200 text-yellow-950 hover:bg-yellow-200 cursor-default">Visitor</Badge>
+		<Badge variant="yellow" size="sm">Visitor</Badge>
 	{/if}
 	{#if !user.isAvailable}
-		<Badge class="bg-red-400 text-red-950 hover:bg-red-400 cursor-default"
-			>No Availability Set</Badge
-		>
+		<Badge variant="red" size="sm">No availability set</Badge>
 	{/if}
 </div>

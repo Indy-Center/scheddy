@@ -12,7 +12,7 @@ import { backgroundColors } from '$lib/ui/cal/utils/utils';
 export const load: PageServerLoad = async ({ cookies }) => {
 	const { user } = (await loadUserData(cookies))!;
 	if (roleOf(user) < ROLE_MENTOR) {
-		redirect(307, '/schedule');
+		redirect(307, '/my_sessions');
 	}
 
 	const mentorSessions = await db

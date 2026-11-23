@@ -3,15 +3,11 @@
 	import { superForm } from 'sveltekit-superforms';
 	import { goto } from '$app/navigation';
 	import { zodClient } from 'sveltekit-superforms/adapters';
-	import { availSchema } from './availSchema';
-	import * as Form from '$lib/components/ui/form';
-	import * as Select from '$lib/components/ui/select';
-	import * as Tabs from '$lib/components/ui/tabs';
 	import { DateTime } from 'luxon';
+	import { Button, Field, PageHeader, Select, toast } from '@indy-center/centerline-svelte';
+	import { availSchema } from './availSchema';
 	import WeekdayAvailability from './WeekdayAvailability.svelte';
 	import SpecificDateAvailability from './SpecificDateAvailability.svelte';
-	import { Separator } from '$lib/components/ui/separator';
-	import { toast } from 'svelte-sonner';
 
 	interface Props {
 		data: PageData;
@@ -24,62 +20,47 @@
 		async onUpdated({ form }) {
 			if (form.valid) {
 				await goto(`/dash/mentors/${data.mentor.id}`);
-				toast.success('Availability updated!');
+				toast('success', 'Availability saved.');
 			}
 		}
 	});
-	const { form: formData, enhance } = form;
+	const { form: formData, errors, enhance, delayed } = form;
+
+	const timeIn = (zone: string) =>
+		DateTime.local().setZone(zone).toLocaleString(DateTime.TIME_SIMPLE);
+	const browserZone = DateTime.local().zone.name;
 </script>
 
-<form method="POST" use:enhance>
-	<Form.Field {form} name="timezone">
-		<Form.Control>
-			{#snippet children({ props })}
-				<Form.Label>Timezone</Form.Label>
-				<Select.Root type="single" bind:value={$formData.timezone} name={props.name}>
-					<Select.Trigger {...props}
-						>{$formData.timezone
-							? $formData.timezone
-							: 'Select your local timezone'}</Select.Trigger
-					>
-					<Select.Content>
-						{#each data.timezones as zone (zone.name)}
-							<Select.Item value={zone.name} label={zone.name}
-								>{zone.name} ({zone.alternativeName})</Select.Item
-							>
-						{/each}
-					</Select.Content>
-				</Select.Root>
-			{/snippet}
-		</Form.Control>
-		<Form.Description>
-			Enter all times on this page local to your selection, <b>{$formData.timezone}</b>, where it's
-			currently
-			<b>{DateTime.local().setZone($formData.timezone).toLocaleString(DateTime.TIME_SIMPLE)}</b>.
-			Not sure what to pick? Your browser thinks you're in the zone
-			<b>{DateTime.local().zone.name}</b>, where it's currently
-			<b>{DateTime.local().toLocaleString(DateTime.TIME_SIMPLE)}</b>.
-		</Form.Description>
-		<Form.FieldErrors />
-	</Form.Field>
-	<div class="block md:hidden">
-		<Tabs.Root value="weekdays">
-			<Tabs.List class="grid w-full grid-cols-2">
-				<Tabs.Trigger value="weekdays">Weekday Availability</Tabs.Trigger>
-				<Tabs.Trigger value="overrides">Specific Date Availability</Tabs.Trigger>
-			</Tabs.List>
-			<Tabs.Content value="weekdays">
-				<WeekdayAvailability {form} />
-			</Tabs.Content>
-			<Tabs.Content value="overrides">
-				<SpecificDateAvailability {form} />
-			</Tabs.Content>
-		</Tabs.Root>
-	</div>
-	<div class="hidden md:flex flex-row gap-4">
+<PageHeader title="Availability">
+	When {data.mentor.firstName} can be booked for sessions.
+</PageHeader>
+
+<form method="POST" use:enhance class="flex flex-col gap-8">
+	<Field
+		label="Time zone"
+		hint="Enter every time on this page in {$formData.timezone}, where it's {timeIn(
+			$formData.timezone
+		)} now. Your browser thinks you're in {browserZone}, where it's {timeIn(browserZone)}."
+		error={$errors.timezone?.[0]}
+		required
+		class="max-w-xl"
+	>
+		{#snippet children(control)}
+			<Select {...control} name="timezone" bind:value={$formData.timezone}>
+				<option value="" disabled>Choose your time zone</option>
+				{#each data.timezones as zone (zone.name)}
+					<option value={zone.name}>{zone.name} ({zone.alternativeName})</option>
+				{/each}
+			</Select>
+		{/snippet}
+	</Field>
+
+	<div class="flex flex-col gap-8 lg:flex-row">
 		<WeekdayAvailability {form} />
-		<Separator orientation="vertical" />
 		<SpecificDateAvailability {form} />
 	</div>
-	<Form.Button class="mt-2 w-full">Set Availability</Form.Button>
+
+	<div>
+		<Button type="submit" size="lg" busy={$delayed} busyLabel="Saving">Save availability</Button>
+	</div>
 </form>

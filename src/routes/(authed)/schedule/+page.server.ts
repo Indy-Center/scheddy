@@ -123,6 +123,7 @@ export const load: PageServerLoad = async ({ cookies, url }) => {
 	}
 
 	return {
+		title: url.searchParams.has('sessionId') ? 'Reschedule a Session' : 'Book a Session',
 		user,
 		role: roleString(roleOf(user)),
 		sessionTypes: sTypesFiltered,

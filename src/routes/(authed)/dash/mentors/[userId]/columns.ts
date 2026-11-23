@@ -1,8 +1,8 @@
 import type { ColumnDef } from '@tanstack/table-core';
-import { renderComponent } from '$lib/components/ui/data-table';
+import { renderComponent } from '$lib/ui/data-table';
 import { DateTime } from 'luxon';
 import DataTableActions from './DataTableActions.svelte';
-import DataTableDateButton from './DataTableDateButton.svelte';
+import SortButton from '$lib/ui/SortButton.svelte';
 
 export type CalendarItem = {
 	session: {
@@ -29,7 +29,8 @@ export const columns: ColumnDef<CalendarItem>[] = [
 	{
 		accessorKey: 'session.start',
 		header: ({ column }) =>
-			renderComponent(DataTableDateButton, {
+			renderComponent(SortButton, {
+				label: 'Date & time',
 				onclick: () => column.toggleSorting(column.getIsSorted() === 'asc'),
 				isSorted: column.getIsSorted()
 			}),

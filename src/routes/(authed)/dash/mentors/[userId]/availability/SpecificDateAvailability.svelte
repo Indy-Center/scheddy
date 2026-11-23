@@ -1,72 +1,77 @@
 <script lang="ts">
 	import type { Infer, SuperForm } from 'sveltekit-superforms';
+	import { DateTime } from 'luxon';
+	import { Button, EmptyState, Field, Heading, Input, Text } from '@indy-center/centerline-svelte';
 	import type { AvailSchema } from './availSchema';
-	import { DateFormatter, type DateValue, getLocalTimeZone, today } from '@internationalized/date';
-	import { Button } from '$lib/components/ui/button';
-	import * as Popover from '$lib/components/ui/popover';
-	import { cn } from '$lib/utils';
-	import CalendarIcon from '@lucide/svelte/icons/calendar';
-	import { Calendar } from '$lib/components/ui/calendar';
-	import SpecificDateAvailabilityControl from './SpecificDateAvailabilityControl.svelte';
+	import DayEditor from './DayEditor.svelte';
 
 	interface Props {
 		form: SuperForm<Infer<AvailSchema>>;
 	}
 	let { form }: Props = $props();
-	const { form: formData } = form;
+	const { form: formData, errors } = form;
 
-	const df = new DateFormatter('en-US', {
-		dateStyle: 'long'
-	});
+	const today = DateTime.local().toISODate();
+	let dateToAdd = $state('');
 
-	let dateAdd: DateValue | undefined = $state(undefined);
+	const dates = $derived(Object.keys($formData.exceptions).sort());
+
 	function addException() {
-		if (dateAdd) {
-			if (!Object.keys($formData.exceptions).includes(dateAdd.toString())) {
-				$formData.exceptions[dateAdd.toString()] = {
-					available: false,
-					start: { hour: 0, minute: 0 },
-					end: { hour: 0, minute: 0 },
-					extraRecords: []
-				};
-			}
+		if (dateToAdd && !(dateToAdd in $formData.exceptions)) {
+			$formData.exceptions[dateToAdd] = {
+				available: false,
+				start: { hour: 0, minute: 0 },
+				end: { hour: 0, minute: 0 },
+				extraRecords: []
+			};
 		}
-		dateAdd = undefined;
+		dateToAdd = '';
+	}
+
+	function removeException(date: string) {
+		delete $formData.exceptions[date];
+		$formData.exceptions = $formData.exceptions;
+	}
+
+	function copyWeekday(date: string) {
+		const weekday = DateTime.fromISO(date).toFormat('cccc').toLowerCase() as keyof typeof $formData;
+		$formData.exceptions[date] = structuredClone($formData[weekday]) as never;
+	}
+
+	function dateLabel(date: string): string {
+		return DateTime.fromISO(date).toLocaleString(DateTime.DATE_HUGE);
 	}
 </script>
 
-<div class="flex-1 flex flex-col gap-2">
-	<h2 class="text-center font-bold text-lg">Specific Date Availability</h2>
-	<p class="text-sm text-muted-foreground">
-		Add specific dates to override your availability for a specific day. Check the box to mark that
-		you are available for that day, and add specific hours of availability. If the box is unchecked,
-		you are NOT available on that day.
-	</p>
+<section class="flex flex-1 flex-col gap-3">
+	<Heading level={2}>Specific dates</Heading>
+	<Text size="small">Dates that don't follow your weekly hours, such as a holiday.</Text>
 
-	<div class="flex flex-row gap-4">
-		<Popover.Root>
-			<Popover.Trigger>
-				{#snippet child({ props })}
-					<Button
-						variant="outline"
-						class={cn(
-							'flex-1 justify-start text-left font-normal',
-							!dateAdd && 'text-muted-foreground'
-						)}
-						{...props}
-					>
-						<CalendarIcon />
-						{dateAdd ? df.format(dateAdd.toDate(getLocalTimeZone())) : 'Pick a date'}
-					</Button>
-				{/snippet}
-			</Popover.Trigger>
-			<Popover.Content class="w-auto p-0" align="start">
-				<Calendar minValue={today(getLocalTimeZone())} type="single" bind:value={dateAdd} />
-			</Popover.Content>
-		</Popover.Root>
-		<Button onclick={addException}>Add override &rarr;</Button>
+	<div class="flex flex-wrap items-end gap-3">
+		<Field label="Date" class="flex-1">
+			{#snippet children(control)}
+				<Input {...control} type="date" min={today} bind:value={dateToAdd} />
+			{/snippet}
+		</Field>
+		<Button variant="secondary" onclick={addException} disabled={!dateToAdd}>Add date</Button>
 	</div>
-	{#each Object.keys($formData.exceptions) as dateId}
-		<SpecificDateAvailabilityControl dayId={dateId} {form} />
+
+	{#each dates as date (date)}
+		<DayEditor
+			label={dateLabel(date)}
+			bind:day={$formData.exceptions[date]}
+			errors={$errors.exceptions?.[date]}
+		>
+			{#snippet actions()}
+				<div class="flex gap-2">
+					<Button variant="secondary" size="sm" onclick={() => copyWeekday(date)}>
+						Copy weekly hours
+					</Button>
+					<Button variant="danger" size="sm" onclick={() => removeException(date)}>Remove</Button>
+				</div>
+			{/snippet}
+		</DayEditor>
+	{:else}
+		<EmptyState size="inline">No dates override your weekly hours.</EmptyState>
 	{/each}
-</div>
+</section>

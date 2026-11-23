@@ -11,7 +11,7 @@ import { DateTime } from 'luxon';
 export const load: PageServerLoad = async ({ cookies }) => {
 	const { user } = (await loadUserData(cookies))!;
 	if (roleOf(user) < ROLE_MENTOR) {
-		redirect(307, '/schedule');
+		redirect(307, '/my_sessions');
 	}
 
 	const validTypes = await db.select().from(sessionTypes);

@@ -2,6 +2,9 @@ import type { PageServerLoad } from './$types';
 import { db } from '$lib/server/db';
 import { users } from '$lib/server/db/schema';
 import { redirect } from '@sveltejs/kit';
+import { landingPath } from '$lib/nav';
+import { eq } from 'drizzle-orm';
+import { roleOf } from '$lib';
 import { callbackUrl, consumeOAuthState, createSession } from '$lib/server/session';
 import { ROLE_DEVELOPER, ROLE_STAFF, ROLE_MENTOR, ROLE_STUDENT } from '$lib/utils';
 import { serverConfig } from '$lib/config/server';
@@ -134,5 +137,7 @@ export const load: PageServerLoad = async ({ cookies, url, fetch }) => {
 
 	await createSession(cookies, cid);
 
-	redirect(307, '/schedule');
+	// Read back the row so a role override counts when choosing where to land.
+	const [saved] = await db.select().from(users).where(eq(users.id, cid));
+	redirect(307, landingPath(saved ? roleOf(saved) : highest_role));
 };

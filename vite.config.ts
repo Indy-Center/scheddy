@@ -13,5 +13,11 @@ export default defineConfig({
 		}),
 		sveltekit(),
 		tailwindcss()
-	]
+	],
+	optimizeDeps: {
+		// scripts/patch-centerline.js edits this package after install. Serving it
+		// unbundled means browsers always get the patched files, instead of a
+		// pre-bundled copy cached under an unchanged version hash.
+		exclude: ['@indy-center/centerline-svelte']
+	}
 });

@@ -1,8 +1,7 @@
 import type { ColumnDef } from '@tanstack/table-core';
 import { roleString } from '$lib/utils';
-import { renderComponent } from '$lib/components/ui/data-table';
+import { renderComponent } from '$lib/ui/data-table';
 import DataTableActions from './DataTableActions.svelte';
-import DataTableAddButton from './DataTableAddButton.svelte';
 
 export type TUser = {
 	id: number;
@@ -34,8 +33,6 @@ export const userColumns: ColumnDef<TUser>[] = [
 				id: row.original.id
 			});
 		},
-		header: () => {
-			return renderComponent(DataTableAddButton, {});
-		}
+		header: () => ''
 	}
 ];

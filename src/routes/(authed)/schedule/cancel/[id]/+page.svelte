@@ -1,53 +1,49 @@
 <script lang="ts">
-	import * as Card from '$lib/components/ui/card';
 	import type { PageData } from './$types';
 	import { goto, invalidateAll } from '$app/navigation';
-	import { logout } from '$lib/logout';
-	import { Button } from '$lib/components/ui/button';
-	import { toast } from 'svelte-sonner';
-	import { clientConfig } from '$lib/config/client';
+	import { Alert, Button, Card, PageHeader, Text, toast } from '@indy-center/centerline-svelte';
 
 	interface Props {
 		data: PageData;
 	}
 	let { data }: Props = $props();
 
-	async function del() {
-		await fetch('?', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded'
+	let busy = $state(false);
+
+	async function cancelSession() {
+		busy = true;
+		try {
+			const resp = await fetch('?', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+			});
+			if (!resp.ok) {
+				toast('danger', "We couldn't cancel the session. Try again.");
+				return;
 			}
-		});
-		await invalidateAll();
-		await goto('/my_sessions');
-		toast.success('Session cancelled successfully!');
+			await invalidateAll();
+			await goto('/my_sessions');
+			toast('success', 'Session cancelled.');
+		} finally {
+			busy = false;
+		}
 	}
 </script>
 
-<div class="min-w-screen min-h-screen flex flex-col align-middle justify-center items-center">
-	<Card.Root class="max-w-xl mx-4 text-center px-4 py-2">
-		<Card.Header>
-			<p class="text-sm text-right text-slate-500 mb-1">
-				Logged in as {data.user.firstName}
-				{data.user.lastName} ({data.role}) -
-				<button onclick={logout} class="hover:underline">Log out</button>
-			</p>
-			<Card.Title>Cancel appointment at {clientConfig.facility.name_public}</Card.Title>
-		</Card.Header>
-		<Card.Content>
-			{#if data.canCancel}
-				<h2>Are you sure?</h2>
-				<div class="flex flex-row gap-4 mt-4">
-					<Button href="/my_sessions" class="flex-1" variant="outline">Nevermind</Button>
-					<Button onclick={del} class="flex-1" variant="destructive">Yes, I'm sure</Button>
-				</div>
-			{:else}
-				<p>
-					As it is within 24 hours of your session time, please contact your mentor directly to
-					cancel.
-				</p>
-			{/if}
-		</Card.Content>
-	</Card.Root>
-</div>
+<PageHeader title="Cancel a session" class="mb-6">Your mentor will be told by email.</PageHeader>
+
+<Card class="max-w-xl">
+	{#if data.canCancel}
+		<Text>Are you sure you want to cancel this session? This can't be undone.</Text>
+		<div class="mt-5 flex flex-wrap gap-3">
+			<Button variant="danger" onclick={cancelSession} {busy} busyLabel="Cancelling">
+				Cancel session
+			</Button>
+			<Button href="/my_sessions" variant="secondary">Keep session</Button>
+		</div>
+	{:else}
+		<Alert level="caution">
+			This session is less than 24 hours away. Please contact your mentor directly to cancel it.
+		</Alert>
+	{/if}
+</Card>
