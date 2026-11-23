@@ -1,7 +1,7 @@
 // Adjusts Centerline's header to match flyindycenter.com and
 // training.flyindycenter.com, so moving between the apps looks seamless:
-// the user menu shows the name and ATC rating, and there's no Apps menu.
-// Centerline's Header has no options for either.
+// the user menu shows the name and ATC rating, and the current nav item is
+// tinted sky. Centerline's Header has no options for either.
 //
 // Runs on postinstall. Idempotent; fails loudly if Centerline's markup changed,
 // so an upgrade can't silently drop the change. Remove once Centerline offers it.
@@ -73,16 +73,6 @@ const patches = [
 				'export const currentClass = "bg-foreground/10 text-foreground!";',
 				`// ${MARK} sky tint, as on the hub.
 export const currentClass = "bg-sky-600/20! text-foreground! shadow-lg";`
-			]
-		]
-	},
-	{
-		// No Apps menu: the hub and training site have none.
-		file: dist('Header/Header.svelte'),
-		edits: [
-			[
-				'      <AppsMenu {apps} current={app?.href ?? hub} />',
-				`      <!-- ${MARK} no Apps menu, as on the hub and training site. -->`
 			]
 		]
 	}
