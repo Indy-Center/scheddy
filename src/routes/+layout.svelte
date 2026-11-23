@@ -3,8 +3,8 @@
 	import type { LayoutData } from './$types';
 	import type { Snippet } from 'svelte';
 	import { page } from '$app/state';
-	import { version } from '$app/environment';
 	import {
+		Footer,
 		Header,
 		INDY_CENTER_APPS,
 		Toaster,
@@ -22,18 +22,41 @@
 	// Scheddy is part of Training as far as members are concerned: the header
 	// names Training beside the logo and the Apps menu marks it as current.
 	const app = INDY_CENTER_APPS.find((a) => a.label === 'Training');
+
+	// Centerline's page titles: "<Page> | <App> | Indy Center", and the app's
+	// home is "<App> | Indy Center". A page names itself with `title` in its
+	// data, or with its last breadcrumb.
+	const pageTitle = $derived(page.data.title ?? page.data.breadcrumbs?.at(-1)?.title);
+
+	// Centerline's footer: a few short columns of pages that exist, each link
+	// named for its page. Privacy and accessibility join once those pages exist.
+	const footer = [
+		{
+			heading: 'Apps',
+			links: [
+				{ href: 'https://flyindycenter.com', label: 'Community' },
+				{ href: 'https://training.flyindycenter.com', label: 'Training' },
+				{ href: 'https://library.flyindycenter.com', label: 'Library' },
+				{ href: 'https://charts.flyindycenter.com', label: 'Charts' }
+			]
+		},
+		{
+			heading: 'Help',
+			links: [
+				{ href: 'https://flyindycenter.com/contact', label: 'Contact Us' },
+				{ href: 'https://flyindycenter.com/feedback', label: 'Submit Feedback' },
+				{ href: 'https://discord.indy.center', label: 'Discord' }
+			]
+		}
+	];
 </script>
 
 <svelte:head>
-	<title>Indy Center | Training</title>
+	<title>{pageTitle ? `${pageTitle} | Training | Indy Center` : 'Training | Indy Center'}</title>
 </svelte:head>
 
 <div class="flex min-h-screen flex-col">
-	<!-- The hub and training site draw their header bar in slate-800 (Centerline's
-	     dark card colour) with a blur. Centerline's Header uses the page background,
-	     so it's tinted here to match them; drop the class once they move to it. -->
 	<Header
-		class="bg-card/95! backdrop-blur-lg"
 		{app}
 		nav={data.nav}
 		current={page.url.pathname}
@@ -44,25 +67,7 @@
 	<main id="main" class="mx-auto flex w-full max-w-7xl flex-1 flex-col px-4 py-8 sm:px-6">
 		{@render children()}
 	</main>
-	<!-- The hub's and training site's footer: the disclaimer and copyright, centred. -->
-	<footer data-theme="dark" class="border-t border-border bg-background py-4">
-		<div class="mx-auto max-w-6xl px-4 text-center text-xs leading-tight">
-			<p class="mb-1 text-muted-foreground">
-				This site is not affiliated with the Federal Aviation Administration or any governing
-				aviation body. All content contained herein is approved only for use on the VATSIM network.
-			</p>
-			<p class="text-muted-foreground/80">Copyright {new Date().getFullYear()} Indy Center</p>
-			<p class="mt-1">
-				<a
-					href="https://github.com/ZTL-ARTCC/scheddy"
-					target="_blank"
-					rel="noopener"
-					class="text-muted-foreground/80 underline-offset-4 hover:text-foreground hover:underline"
-					>Scheddy v{version}</a
-				>
-			</p>
-		</div>
-	</footer>
+	<Footer columns={footer} />
 </div>
 
 <Toaster />

@@ -5,7 +5,7 @@
 </script>
 
 <svelte:head>
-	<title>Indy Center | Training</title>
+	<title>{page.status} | Training | Indy Center</title>
 </svelte:head>
 
 <ErrorPage

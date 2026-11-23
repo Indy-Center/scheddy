@@ -4,8 +4,6 @@ WORKDIR /usr/src/app
 FROM base AS install
 RUN mkdir -p /temp/dev
 COPY package.json bun.lock /temp/dev
-# postinstall runs scripts/patch-centerline.js, which matches Centerline's header to the other Indy Center sites
-COPY scripts/patch-centerline.js /temp/dev/scripts/patch-centerline.js
 RUN cd /temp/dev && bun install --frozen-lockfile && bun svelte-kit sync
 
 FROM base AS prerelease

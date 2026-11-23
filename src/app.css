@@ -5,20 +5,6 @@
 @import '@indy-center/centerline-tokens/fonts.css';
 @source '../node_modules/@indy-center/centerline-svelte';
 
-/*
-  Header: Scheddy has more top-level pages than the hub, so keep every nav
-  label on one line, and let the logo area take only the room it needs
-  instead of Centerline's fixed 16rem, leaving that room for the links.
-*/
-header[data-theme='dark'] nav :is(a, button) {
-	white-space: nowrap;
-}
-@media (min-width: 64rem) {
-	header[data-theme='dark'] .lg\:w-64 {
-		width: auto;
-	}
-}
-
 /* The facility calendar's half-hour lines. */
 @utility border-b-dashed {
 	border-bottom-style: dashed;
